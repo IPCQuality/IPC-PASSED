@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Quality - Desktop & Mobile Friendly</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-slate-950 min-h-screen text-gray-800 dark:text-gray-100 transition-colors duration-300 relative pb-24 sm:pb-12">
+
+  <!-- LOGIN PANEL MINIMALIS -->
+  <div id="tokenGate" class="fixed inset-0 bg-gray-100 dark:bg-slate-950 flex items-center justify-center p-4 z-50 transition-colors">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl flex flex-col gap-4 text-center">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">Admin Login</h2>
+      
+      <div class="text-left mt-2">
+        <input type="password" id="gateTokenInput" placeholder="GitHub Token..." 
+          class="w-full border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-center tracking-widest">
+      </div>
+
+      <div class="flex flex-col gap-2 mt-2">
+        <button onclick="unlockDashboard()" class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white py-3 rounded-xl text-sm font-bold transition shadow-md">
+          Masuk
+        </button>
+        <a href="index.html" class="w-full bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 py-3 rounded-xl text-sm font-semibold transition text-center">
+          Kembali
+        </a>
+      </div>
+      <div id="gateAlert" class="hidden text-xs font-semibold text-red-500 dark:text-red-400 p-3 bg-red-50 dark:bg-red-950/50 rounded-xl border border-red-200 dark:border-red-900 mt-2"></div>
+    </div>
+  </div>
+
+  <div id="loadingOverlay" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4 select-none">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl flex flex-col items-center text-center gap-4">
+      <div class="w-14 h-14 border-4 border-indigo-200 dark:border-slate-700 border-t-indigo-600 rounded-full animate-spin"></div>
+      <div>
+        <h3 id="overlayTitle" class="text-base sm:text-lg font-bold text-gray-800 dark:text-white">Memproses...</h3>
+        <p id="overlayDesc" class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">Mohon tunggu sejenak.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="syncNotationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
+        <h3 class="text-base sm:text-lg font-extrabold text-gray-900 dark:text-white leading-tight">Samakan Gambar untuk Notasi Serupa?</h3>
+      </div>
+      <p id="syncModalDescription" class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></p>
+      <div class="bg-gray-50 dark:bg-slate-800/80 rounded-2xl p-3 border border-gray-100 dark:border-slate-700/80 max-h-32 overflow-y-auto">
+        <p class="text-[10px] font-bold uppercase text-gray-400 mb-1">Daftar MID Terkait:</p>
+        <p id="syncModalMidList" class="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 break-words"></p>
+      </div>
+      <div class="flex items-center gap-2 pt-2">
+        <button onclick="closeSyncModal(false)" class="flex-1 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition">
+          Hanya Item Ini
+        </button>
+        <button onclick="closeSyncModal(true)" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition shadow-md">
+          Samakan Semua
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="renameSharedModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+      <h3 class="text-base sm:text-lg font-extrabold text-gray-900 dark:text-white leading-tight">Nama File Bersama</h3>
+      <div class="space-y-1.5 text-left">
+        <input type="text" id="sharedFileNameInput" placeholder="contoh: produk_a.jpg" class="w-full border border-gray-300 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 text-sm font-mono font-bold tracking-wide">
+      </div>
+      <div class="flex items-center gap-2 pt-2">
+        <button onclick="confirmSharedRename(false)" class="flex-1 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition">Batal</button>
+        <button onclick="confirmSharedRename(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition shadow-md">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="localNotificationBox" class="fixed top-5 right-5 z-50 transform translate-y-[-20px] opacity-0 transition-all duration-300 pointer-events-none max-w-sm w-full">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-xl rounded-2xl p-4 flex items-center gap-3">
+      <p class="text-xs font-semibold leading-snug flex-1 text-center" id="notificationMessageText"></p>
+    </div>
+  </div>
+
+  <div id="adminDashboard" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-24 sm:pb-8 space-y-6">
+    
+    <header class="flex justify-between items-center bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm transition-colors">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-600 flex items-center justify-center text-white font-black text-lg shadow-md">QP</div>
+        <h1 class="text-lg font-black text-gray-900 dark:text-white tracking-tight">DASHBOARD</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="themeToggleBtn" onclick="toggleAppTheme()" class="p-2.5 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition" title="Ubah Tema">
+          <svg id="themeLightIcon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          <svg id="themeDarkIcon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+        </button>
+        <button onclick="lockDashboardBack()" class="px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/60 font-bold text-xs transition flex items-center shadow-sm">
+          Keluar
+        </button>
+      </div>
+    </header>
+
+    <!-- MENU AKSI EDITOR MINIMALIS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col gap-3 justify-center transition-colors">
+        <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase text-center mb-1">Aksi GitHub</h2>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="loadData()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-sm text-xs active:scale-[0.98]">
+            Tarik Data
+          </button>
+          <button onclick="commitAllJsonChanges()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-sm text-xs active:scale-[0.98]">
+            Commit
+          </button>
+          <button onclick="groupImagesByNotation()" class="col-span-2 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-sm text-xs active:scale-[0.98]">
+            Samakan Gambar Bernotasi
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col gap-3 justify-center transition-colors">
+        <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase text-center mb-1">Backup JSON</h2>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="downloadJsonFile()" class="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:bg-gray-200 text-gray-700 dark:text-gray-300 font-bold py-2.5 px-3 rounded-xl transition text-xs shadow-sm">
+            Ekspor
+          </button>
+          <label class="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:bg-gray-200 text-gray-700 dark:text-gray-300 font-bold py-2.5 px-3 rounded-xl transition text-xs shadow-sm cursor-pointer text-center block leading-loose">
+            Impor
+            <input type="file" accept=".json,application/json" onchange="handleImportJson(event)" class="hidden">
+          </label>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col justify-between transition-colors">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase">Console Log</h2>
+          <button onclick="document.getElementById('systemLogBox').innerHTML=''" class="text-[10px] font-bold text-red-500 hover:underline uppercase">Bersihkan</button>
+        </div>
+        <div id="systemLogBox" class="w-full h-20 border border-gray-100 dark:border-slate-800 bg-gray-900 rounded-2xl p-2.5 text-[10px] font-mono overflow-y-auto text-gray-300 space-y-1 select-text scroll-smooth"></div>
+      </div>
+
+    </div>
+
+    <!-- PENCARIAN & STATISTIK MINIMALIS + COUNTER GAMBAR -->
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm space-y-4 transition-colors">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input type="text" id="searchMidInput" oninput="debounceFilterCards()" placeholder="Cari MID..." class="w-full flex-1 border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold">
+        <input type="text" id="filterDescInput" oninput="debounceFilterCards()" placeholder="Cari Keterangan..." class="w-full flex-1 border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold">
+        <button onclick="addNewCard()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition duration-150 text-xs sm:text-sm shadow-md active:scale-[0.98] shrink-0">
+          + Tambah
+        </button>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] font-bold text-gray-400 uppercase tracking-wider border-t border-gray-100 dark:border-slate-800 pt-3 gap-2">
+        <div class="flex flex-wrap gap-x-4 gap-y-1">
+          <span>Total: <span id="itemCount" class="text-indigo-600 dark:text-indigo-400 font-extrabold text-xs">0</span></span>
+          <span>Gambar: <span id="imgCount" class="text-emerald-500 font-extrabold text-xs">0</span></span>
+          <span>Tanpa Gambar: <span id="noImgCount" class="text-red-500 font-extrabold text-xs">0</span></span>
+          <span id="filteredCountLabel" class="hidden text-gray-300"> | Tampil: <span id="filteredCount" class="text-blue-500 font-extrabold text-xs">0</span></span>
+        </div>
+        <div id="statusAlert" class="hidden font-semibold transition-all normal-case"></div>
+      </div>
+    </div>
+
+    <!-- LIST ITEM EDITOR -->
+    <div id="cardContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5"></div>
+
+  </div>
+
+  <div id="storagePermissionModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-4 text-center">
+      <h3 class="text-base font-extrabold text-gray-900 dark:text-white">Pilih File Gambar</h3>
+      <div class="flex flex-col gap-2 pt-2">
+        <button onclick="requestAndroidStorageAccess()" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl text-xs transition shadow-md">Pilih File</button>
+        <button onclick="closeStorageModal()" class="w-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 font-bold py-2.5 px-4 rounded-xl text-xs transition">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================================
+    // KONFIGURASI GLOBAL REPOSITORI
+    // ============================================================================
+    const REPO_OWNER = "IPCQuality";
+    const REPO_NAME = "IPC-PASSED";
+    const JSON_PATH = "deskripsi.json";
+    const IMG_FOLDER = "images/";
+
+    let activeCardIndexForUpload = null;
+
+    // ============================================================================
+    // LOCAL THEME MANAGER
+    // ============================================================================
+    function initTheme() {
+      const savedTheme = localStorage.getItem('appTheme') || localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+        document.getElementById('themeLightIcon')?.classList.remove('hidden');
+        document.getElementById('themeDarkIcon')?.classList.add('hidden');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.getElementById('themeLightIcon')?.classList.add('hidden');
+        document.getElementById('themeDarkIcon')?.classList.remove('hidden');
+      }
+    }
+
+    function toggleAppTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('appTheme', 'light');
+        document.getElementById('themeLightIcon')?.classList.add('hidden');
+        document.getElementById('themeDarkIcon')?.classList.remove('hidden');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('appTheme', 'dark');
+        document.getElementById('themeLightIcon')?.classList.remove('hidden');
+        document.getElementById('themeDarkIcon')?.classList.add('hidden');
+      }
+    }
+    initTheme();
+
+    // ============================================================================
+    // LOG & TOAST NOTIFICATION ENGINE
+    // ============================================================================
+    class GithubLogger {
+      static log(step, message, type = "info") {
+        const timestamp = new Date().toLocaleTimeString('id-ID', { hour12: false });
+        console.log(`[${timestamp}] [GitHubEngine::${step}] -> ${message}`);
+        
+        const box = document.getElementById("systemLogBox");
+        if (box) {
+          let color = 'text-green-400';
+          let prefix = '⚙️';
+          if (type === 'error') { color = 'text-red-400'; prefix = '❌'; }
+          else if (type === 'success') { color = 'text-emerald-400'; prefix = '✅'; }
+          else if (type === 'warning') { color = 'text-yellow-400'; prefix = '⚠️'; }
+          
+          box.innerHTML += `<div class="${color}">${prefix} [${timestamp}] ${message}</div>`;
+          box.scrollTop = box.scrollHeight;
+        }
+
+        const alertEl = document.getElementById("statusAlert");
+        if (alertEl) {
+          alertEl.classList.remove("hidden", "text-gray-500", "text-red-500", "text-emerald-500");
+          if (type === "error") {
+            alertEl.classList.add("text-red-500");
+            alertEl.innerText = `Error: ${message}`;
+          } else if (type === "success") {
+            alertEl.classList.add("text-emerald-500");
+            alertEl.innerText = message;
+          } else {
+            alertEl.classList.add("text-gray-500");
+            alertEl.innerText = message;
+          }
+        }
+      }
+    }
+
+    class LocalNotification {
+      static show(message, isError = false) {
+        const box = document.getElementById('localNotificationBox');
+        const text = document.getElementById('notificationMessageText');
+        if (!box || !text) return;
+        
+        text.innerText = message;
+        if (isError) {
+          text.className = "text-xs font-semibold leading-snug flex-1 text-red-600 dark:text-red-400 text-center";
+        } else {
+          text.className = "text-xs font-semibold leading-snug flex-1 text-gray-700 dark:text-gray-200 text-center";
+        }
+        
+        box.style.transform = "translateY(0px)";
+        box.style.opacity = "1";
+        
+        if (this.timeout) clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+          box.style.transform = "translateY(-20px)";
+          box.style.opacity = "0";
+        }, 3000);
+      }
+    }
+
+    // ============================================================================
+    // GITHUB INTERACTION ENGINE ARCHITECTURE
+    // ============================================================================
+    class GithubCache {
+      static getBustUrl(url) {
+        const delimiter = url.includes("?") ? "&" : "?";
+        return `${url}${delimiter}t=${new Date().getTime()}`;
+      }
+    }
+
+    class GithubRetry {
+      static async execute(fn, retries = 3, delays = 2000) {
+        let lastErr;
+        for (let i = 0; i < retries; i++) {
+          try { return await fn(); }
+          catch (err) {
+            lastErr = err;
+            GithubLogger.log("NetworkRetry", `Percobaan ${i+1} gagal: ${err.message}. Mengulang kembali...`, "warning");
+            await new Promise(r => setTimeout(r, delays));
+          }
+        }
+        throw lastErr;
+      }
+    }
+
+    class GithubQueue {
+      constructor() { this.queue = Promise.resolve(); }
+      enqueue(fn) {
+        this.queue = this.queue.then(() => fn().catch(err => {
+          GithubLogger.log("QueueProcessor", `Kegagalan eksekusi tugas antrean: ${err.message}`, "error");
+        }));
+        return this.queue;
+      }
+    }
+
+    class GithubClient {
+      constructor(token) {
+        this.token = token.trim();
+        this.baseUrl = "https://api.github.com";
+      }
+      async request(method, endpoint, body = null, isRawContent = false) {
+        return GithubRetry.execute(async () => {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 30000);
+          let url = endpoint.startsWith("http") ? endpoint : `${this.baseUrl}${endpoint}`;
+          if (method === "GET") url = GithubCache.getBustUrl(url);
+
+          const headers = {
+            "Authorization": `Bearer ${this.token}`,
+            "Accept": isRawContent ? "application/vnd.github.raw" : "application/vnd.github+json"
+          };
+          if (body && method !== "GET") headers["Content-Type"] = "application/json";
+
+          const options = { method, headers, signal: controller.signal };
+          if (body && method !== "GET") options.body = JSON.stringify(body);
+
+          try {
+            const response = await fetch(url, options);
+            clearTimeout(timeoutId);
+            if (!response.ok) {
+              const errText = await response.text();
+              let parsed;
+              try { parsed = JSON.parse(errText); } catch { parsed = {}; }
+              const msg = parsed.message || `HTTP ${response.status}`;
+              const e = new Error(msg);
+              e.status = response.status;
+              throw e;
+            }
+            return isRawContent ? await response.text() : await response.json();
+          } catch (error) {
+            clearTimeout(timeoutId);
+            throw error;
+          }
+        });
+      }
+    }
+
+    class GithubBranch {
+      constructor(client, owner, repo, defaultBranch = "main") {
+        this.client = client;
+        this.owner = owner;
+        this.repo = repo;
+        this.defaultBranch = defaultBranch;
+        this.cachedBranch = null;
+      }
+      async getBranch() {
+        if (this.cachedBranch) return this.cachedBranch;
+        try {
+          const repoMeta = await this.client.request("GET", `/repos/${this.owner}/${this.repo}`);
+          this.cachedBranch = repoMeta.default_branch || this.defaultBranch;
+          return this.cachedBranch;
+        } catch {
+          this.cachedBranch = this.defaultBranch;
+          return this.defaultBranch;
+        }
+      }
+    }
+
+    class GithubRepository {
+      constructor(client, owner, repo) {
+        this.client = client;
+        this.owner = owner;
+        this.repo = repo;
+        this.branchManager = new GithubBranch(client, owner, repo);
+      }
+      async getFileMetadata(path) {
+        const ref = await this.branchManager.getBranch();
+        try {
+          return await this.client.request("GET", `/repos/${this.owner}/${this.repo}/contents/${path}?ref=${encodeURIComponent(ref)}`);
+        } catch (error) {
+          if (error.status === 404) return null;
+          throw error;
+        }
+      }
+      async getFileContentUTF8(path) {
+        const meta = await this.getFileMetadata(path);
+        if (!meta || !meta.content) throw new Error(`File ${path} tidak ditemukan atau kosong.`);
+        const cleanedBase64 = meta.content.replace(/\s+/g, '');
+        const binary = atob(cleanedBase64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return { content: new TextDecoder().decode(bytes), sha: meta.sha };
+      }
+      async getRemoteImageNames(folderPath) {
+        // Menggunakan Git Tree API untuk mendapatkan daftar seluruh gambar tanpa batasan limit konten folder
+        const ref = await this.branchManager.getBranch();
+        try {
+          const branchInfo = await this.client.request("GET", `/repos/${this.owner}/${this.repo}/branches/${ref}`);
+          const commitSha = branchInfo.commit.sha;
+          const treeData = await this.client.request("GET", `/repos/${this.owner}/${this.repo}/git/trees/${commitSha}?recursive=1`);
+          
+          const prefix = folderPath.endsWith('/') ? folderPath : folderPath + '/';
+          const images = treeData.tree
+            .filter(item => item.path.startsWith(prefix) && item.type === "blob")
+            .map(item => item.path.replace(prefix, ''));
+            
+          return images;
+        } catch (error) {
+          GithubLogger.log("FetchImages", "Gagal mengambil daftar gambar aktual: " + error.message, "warning");
+          return [];
+        }
+      }
+      async putFile(path, contentBase64, commitMessage) {
+        const ref = await this.branchManager.getBranch();
+        const existingMeta = await this.getFileMetadata(path);
+        const body = {
+          message: commitMessage,
+          content: contentBase64,
+          branch: ref
+        };
+        if (existingMeta && existingMeta.sha) body.sha = existingMeta.sha;
+        const res = await this.client.request("PUT", `/repos/${this.owner}/${this.repo}/contents/${path}`, body);
+        return res.content.sha;
+      }
+    }
+
+    class GithubVerifier {
+      static async verifyFileContent(repo, path, expectedString) {
+        const remote = await repo.getFileContentUTF8(path);
+        try {
+          const remoteObj = JSON.parse(remote.content);
+          const expectedObj = JSON.parse(expectedString);
+          if (JSON.stringify(remoteObj) !== JSON.stringify(expectedObj)) {
+            throw new Error("Konflik Integritas Server");
+          }
+        } catch (e) {
+          if (e.message.includes("Konflik Integritas Server")) throw e;
+          if (remote.content.trim() !== expectedString.trim()) {
+            throw new Error("Konflik Integritas Server");
+          }
+        }
+        return true;
+      }
+    }
+
+    class GithubImage {
+      static cleanBase64(b64Str) {
+        if (!b64Str) return '';
+        const idx = b64Str.indexOf(';base64,');
+        return idx !== -1 ? b64Str.substring(idx + 8) : b64Str;
+      }
+      static async validateAndOptimize(file) {
+        return new Promise((resolve, reject) => {
+          if (!file.type.startsWith("image/")) {
+            return reject(new Error("Format berkas harus berupa gambar valid (PNG/JPG/HEIC)."));
+          }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              try {
+                const canvas = document.createElement("canvas");
+                const MAX_SIZE = 1280;
+                let width = img.naturalWidth;
+                let height = img.naturalHeight;
+                if (width > height) {
+                  if (width > MAX_SIZE) {
+                    height = Math.round((height * MAX_SIZE) / width);
+                    width = MAX_SIZE;
+                  }
+                } else {
+                  if (height > MAX_SIZE) {
+                    width = Math.round((width * MAX_SIZE) / height);
+                    height = MAX_SIZE;
+                  }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+                resolve({ previewUrl: dataUrl, base64: GithubImage.cleanBase64(dataUrl) });
+              } catch (err) { reject(err); }
+            };
+            img.onerror = () => reject(new Error("File gambar rusak atau tidak didukung perangkat."));
+            img.src = e.target.result;
+          };
+          reader.onerror = () => reject(new Error("Gagal membaca file dari penyimpanan perangkat."));
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    class GithubUploader {
+      constructor(repository, folderPath = "images/") {
+        this.repo = repository;
+        this.folderPath = folderPath;
+      }
+      async uploadImageByFileName(fileName, base64Content) {
+        const cleanName = String(fileName).trim();
+        if (!cleanName) throw new Error("Nama file gambar tidak boleh kosong saat upload.");
+        const targetPath = `${this.folderPath}${cleanName}`;
+        const cleanBase64 = GithubImage.cleanBase64(base64Content);
+        const newSha = await this.repo.putFile(
+          targetPath,
+          cleanBase64,
+          `Update image asset: ${cleanName}`
+        );
+        return { fileName: cleanName, sha: newSha };
+      }
+      async removeOldImageIfNeeded(oldFileName, newExpectedName) {
+        if (!oldFileName || oldFileName === '-' || oldFileName.toLowerCase().endsWith('.svg')) return;
+        const cleanOldName = oldFileName.replace(/^images\//, "").trim();
+        const cleanExpected = newExpectedName.replace(/^images\//, "").trim();
+        if (cleanOldName === cleanExpected) return;
+
+        try {
+          const remoteFile = await this.repo.getFileMetadata(`${this.folderPath}${cleanOldName}`);
+          if (remoteFile && remoteFile.sha) {
+            const ref = await this.repo.branchManager.getBranch();
+            await this.repo.client.request("DELETE", `/repos/${this.repo.owner}/${this.repo.repo}/contents/${this.folderPath}${cleanOldName}`, {
+              message: `Remove unreferenced asset ${cleanOldName}`,
+              sha: remoteFile.sha,
+              branch: ref
+            });
+            GithubLogger.log("Pembersihan", `Aset lama ${cleanOldName} dihapus.`, "success");
+          }
+        } catch (e) {
+          GithubLogger.log("Pembersihan", `Abaikan pembersihan berkas lama (${cleanOldName}): ${e.message}`, "warning");
+        }
+      }
+    }
+
+    class GithubCommit {
+      static generateCleanJsonPayload(itemsArray) {
+        const cleanRecords = itemsArray.map(item => ({
+          mid: String(item.mid || "").trim(),
+          deskripsi: String(item.deskripsi || "").trim(),
+          notasi: String(item.notasi || "").trim(),
+          tdk: String(item.tdk || "").trim(),
+          img: String(item.img || "").trim()
+        }));
+        const wrapper = { version: 1, count: cleanRecords.length, records: cleanRecords };
+        const jsonString = JSON.stringify(wrapper, null, 2);
+        
+        const bytes = new TextEncoder().encode(jsonString);
+        let binary = "";
+        for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+        return { jsonString, base64: btoa(binary) };
+      }
+    }
+
+    class GithubTransaction {
+      constructor(repository, uploader, jsonPath) {
+        this.repo = repository;
+        this.uploader = uploader;
+        this.jsonPath = jsonPath;
+      }
+      async executeAtomicCommit(itemsArray) {
+        const activeItems = JSON.parse(JSON.stringify(itemsArray));
+        const uploadedFileNames = new Set();
+        const activeImageNames = new Set(activeItems.map(it => (it.img || "").trim()).filter(n => n && n !== "-"));
+
+        for (let i = 0; i < activeItems.length; i++) {
+          const item = activeItems[i];
+          if (item.newImageBase64 && item.img) {
+            const targetFileName = item.img;
+            if (item.oldImg && item.oldImg !== targetFileName && !activeImageNames.has(item.oldImg)) {
+              await this.uploader.removeOldImageIfNeeded(item.oldImg, targetFileName);
+            }
+            if (!uploadedFileNames.has(targetFileName)) {
+              await this.uploader.uploadImageByFileName(targetFileName, item.newImageBase64);
+              uploadedFileNames.add(targetFileName);
+            }
+            delete item.newImageBase64;
+            delete item.oldImg;
+          }
+        }
+
+        const { jsonString, base64 } = GithubCommit.generateCleanJsonPayload(activeItems);
+        await this.repo.putFile(this.jsonPath, base64, `Update deskripsi.json (${activeItems.length} items)`);
+        await GithubVerifier.verifyFileContent(this.repo, this.jsonPath, jsonString);
+        return true;
+      }
+    }
+
+    // ============================================================================
+    // APPLICATION CONTROLLER (AdminApp)
+    // ============================================================================
+    class AdminApp {
+      constructor() {
+        this.repoOwner = REPO_OWNER;
+        this.repoName = REPO_NAME;
+        this.jsonPath = JSON_PATH;
+        this.imageFolder = IMG_FOLDER;
+        this.branch = "main";
+        this.items = [];
+        this.filterMid = "";
+        this.filterDesc = "";
+        this.queue = new GithubQueue();
+        this.client = null;
+        this.repository = null;
+        this.uploader = null;
+        this.transaction = null;
+        this.pendingSyncData = null;
+        this.remoteImages = new Set(); // Menyimpan nama gambar aktual yang ada di repo
+      }
+
+      setLoadingUI(isBusy, title = "", desc = "") {
+        const overlay = document.getElementById("loadingOverlay");
+        if (!overlay) return;
+        if (isBusy) {
+          document.getElementById("overlayTitle").innerText = title || "Memproses...";
+          document.getElementById("overlayDesc").innerText = desc || "Mohon tunggu.";
+          overlay.classList.remove("hidden");
+        } else {
+          overlay.classList.add("hidden");
+        }
+      }
+
+      initializeSystem(token) {
+        this.client = new GithubClient(token);
+        this.repository = new GithubRepository(this.client, this.repoOwner, this.repoName);
+        this.uploader = new GithubUploader(this.repository, this.imageFolder);
+        this.transaction = new GithubTransaction(this.repository, this.uploader, this.jsonPath);
+      }
+
+      async loadAllData() {
+        if (!this.repository) return;
+        this.setLoadingUI(true, "Mengunduh Data", "Mengambil data GitHub...");
+
+        try {
+          // Tarik data file JSON
+          const fileData = await this.repository.getFileContentUTF8(this.jsonPath);
+          const parsed = JSON.parse(fileData.content);
+          const rawRecords = parsed.records || [];
+          this.items = rawRecords.map(r => this.normalizeItemStructure(r));
+          
+          // Tarik daftar file aktual di folder images/
+          const imageList = await this.repository.getRemoteImageNames(this.imageFolder);
+          this.remoteImages = new Set(imageList);
+
+          GithubLogger.log("LoadData", `Berhasil memuat ${this.items.length} item dan ${this.remoteImages.size} aset gambar.`, "success");
+          LocalNotification.show("Sinkronisasi Selesai!");
+          this.render();
+        } catch (error) {
+          GithubLogger.log("LoadData", error.message, "error");
+          LocalNotification.show("Gagal memuat data", true);
+        } finally {
+          this.setLoadingUI(false);
+        }
+      }
+
+      async saveChanges() {
+        if (!this.transaction) return;
+        if (this.items.length === 0) {
+          alert("Tidak ada data untuk disimpan.");
+          return;
+        }
+        
+        this.setLoadingUI(true, "Menyimpan ke GitHub...", "Mengunggah data & gambar...");
+        
+        await this.queue.enqueue(async () => {
+          try {
+            await this.transaction.executeAtomicCommit(this.items);
+            GithubLogger.log("SaveChanges", "Tersimpan", "success");
+            LocalNotification.show("Perubahan berhasil disimpan!");
+            await this.loadAllData(); // Refresh data dan daftar gambar aktual
+          } catch (error) {
+            GithubLogger.log("SaveChanges", error.message, "error");
+            alert(`Gagal Menyimpan: ${error.message}`);
+          } finally {
+            this.setLoadingUI(false);
+          }
+        });
+      }
+
+      normalizeItemStructure(obj) {
+        if (!obj) return { mid: "", deskripsi: "", notasi: "", tdk: "", img: "", oldImg: "", localImagePreview: null, newImageBase64: null };
+        const lower = {};
+        Object.keys(obj).forEach(key => { lower[key.toLowerCase()] = obj[key]; });
+        const midVal = String(lower.mid || lower.mids || lower.id_mid || "").trim();
+        let imgVal = String(lower.img || lower.image || lower.gambar || "").trim();
+        if (!imgVal && midVal) imgVal = `${midVal}.jpg`;
+
+        return {
+          mid: midVal,
+          deskripsi: String(lower.deskripsi || lower.produk || lower.nama || "").trim(),
+          notasi: String(lower.notasi || lower.keterangan || lower.desc || "").trim(),
+          tdk: String(lower.tdk || lower.nomortdk || "").trim(),
+          img: imgVal,
+          oldImg: imgVal,
+          localImagePreview: lower.localimagepreview || null,
+          newImageBase64: lower.newimagebase64 || null
+        };
+      }
+
+      addNewItem() {
+        this.items.unshift({ mid: "", deskripsi: "", notasi: "", tdk: "", img: "", oldImg: "", localImagePreview: null, newImageBase64: null });
+        this.render();
+      }
+
+      removeItem(index) {
+        if (confirm("Hapus item ini?")) {
+          this.items.splice(index, 1);
+          this.render();
+        }
+      }
+
+      updateItemField(index, field, value) {
+        if (!this.items[index]) return;
+        this.items[index][field] = value;
+        if (field === 'mid' && value.trim() && !this.items[index].img) {
+          this.items[index].img = `${value.trim()}.jpg`;
+        }
+      }
+
+      async handleImageFileChange(index, file) {
+        if (!this.items[index]) return;
+        try {
+          const processed = await GithubImage.validateAndOptimize(file);
+          const midStr = String(this.items[index].mid || "").trim();
+          const currentNotation = String(this.items[index].notasi || "").trim();
+          const defaultFileName = midStr ? `${midStr}.jpg` : file.name;
+          
+          this.items[index].oldImg = this.items[index].img;
+          this.items[index].img = defaultFileName;
+          this.items[index].localImagePreview = processed.previewUrl;
+          this.items[index].newImageBase64 = processed.base64;
+          
+          if (currentNotation) {
+            const identicalNotationItems = this.items.filter((item, idx) => {
+              return idx !== index && 
+                     String(item.notasi || "").trim().toLowerCase() === currentNotation.toLowerCase() &&
+                     String(item.mid || "").trim() !== "";
+            });
+
+            if (identicalNotationItems.length > 0) {
+              const listMidStr = identicalNotationItems.map(item => item.mid).join(", ");
+              this.pendingSyncData = {
+                sourceIndex: index,
+                identicalItems: identicalNotationItems,
+                previewUrl: processed.previewUrl,
+                base64: processed.base64,
+                notation: currentNotation
+              };
+
+              const modalEl = document.getElementById("syncNotationModal");
+              const descEl = document.getElementById("syncModalDescription");
+              const listEl = document.getElementById("syncModalMidList");
+              
+              if (modalEl && descEl && listEl) {
+                descEl.innerText = `Ditemukan ${identicalNotationItems.length} MID lain dengan notasi serupa.`;
+                listEl.innerText = listMidStr;
+                modalEl.classList.remove("hidden");
+                return;
+              }
+            }
+          }
+
+          this.render();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+
+      handleSyncChoice(shouldSync) {
+        const modal1 = document.getElementById("syncNotationModal");
+        if (modal1) modal1.classList.add("hidden");
+
+        if (shouldSync && this.pendingSyncData) {
+          const modal2 = document.getElementById("renameSharedModal");
+          const inputEl = document.getElementById("sharedFileNameInput");
+          if (modal2 && inputEl) {
+            inputEl.value = this.sanitizeFilenameSuggestion(this.pendingSyncData.notation);
+            modal2.classList.remove("hidden");
+            inputEl.focus();
+            inputEl.select();
+          }
+        } else {
+          this.pendingSyncData = null;
+          this.render();
+        }
+      }
+
+      sanitizeFilenameSuggestion(str) {
+        let cleaned = str.toLowerCase().replace(/\s+/g, '').replace(/_+/g, '').replace(/[^a-z0-9=\-]/g, '');
+        if (!cleaned) cleaned = "sharedimage";
+        return cleaned + ".jpg";
+      }
+
+      applySharedRename(confirmed, customName = "") {
+        const modal2 = document.getElementById("renameSharedModal");
+        if (modal2) modal2.classList.add("hidden");
+
+        if (confirmed && this.pendingSyncData && customName.trim()) {
+          let cleanFileName = customName.trim().toLowerCase().replace(/\s+/g, '').replace(/_+/g, '');
+          const extMatch = cleanFileName.match(/\.(jpg|jpeg|png|heic)$/i);
+          const ext = extMatch ? extMatch[1] : 'jpg';
+          let nameWithoutExt = cleanFileName.replace(/\.(jpg|jpeg|png|heic)$/i, '').replace(/[^a-z0-9=\-]/g, '');
+          if (!nameWithoutExt) nameWithoutExt = "sharedimage";
+          cleanFileName = `${nameWithoutExt}.${ext}`;
+
+          const { previewUrl, base64, notation } = this.pendingSyncData;
+          
+          this.items.forEach((item) => {
+            if (String(item.notasi || "").trim().toLowerCase() === notation.toLowerCase()) {
+              if (!item.oldImg) item.oldImg = item.img;
+              item.img = cleanFileName;
+              item.localImagePreview = previewUrl;
+              item.newImageBase64 = base64;
+            }
+          });
+          LocalNotification.show("Gambar serentak disinkronkan.");
+        }
+        
+        this.pendingSyncData = null;
+        this.render();
+      }
+
+      groupAllImagesByNotation() {
+        if (!this.items || this.items.length === 0) return;
+        const notationMap = new Map();
+        
+        this.items.forEach(item => {
+          const notasi = String(item.notasi || "").trim().toLowerCase();
+          if (notasi && notasi !== "-") {
+            if (!notationMap.has(notasi)) notationMap.set(notasi, []);
+            notationMap.get(notasi).push(item);
+          }
+        });
+
+        let updatedGroups = 0;
+        notationMap.forEach((groupItems, notasi) => {
+          if (groupItems.length > 1) {
+            const sourceItem = groupItems.find(item => item.localImagePreview || (item.img && item.img !== "-" && item.img !== ""));
+            if (sourceItem) {
+              const cleanedNotasi = notasi.replace(/\s+/g, '').replace(/_+/g, '').replace(/[^a-z0-9=\-]/g, '') || "sharedimage";
+              const sharedImgName = `${cleanedNotasi}.jpg`;
+              
+              groupItems.forEach(item => {
+                if (!item.oldImg) item.oldImg = item.img;
+                item.img = sharedImgName;
+                if (sourceItem.localImagePreview) item.localImagePreview = sourceItem.localImagePreview;
+                if (sourceItem.newImageBase64) item.newImageBase64 = sourceItem.newImageBase64;
+              });
+              updatedGroups++;
+            }
+          }
+        });
+
+        if (updatedGroups > 0) {
+          LocalNotification.show(`Gambar serentak diperbarui pada ${updatedGroups} kelompok.`);
+          this.render();
+        } else {
+          LocalNotification.show("Tidak ada kelompok yang butuh disinkronisasi.");
+        }
+      }
+
+      downloadLocalJson() {
+        const { jsonString } = GithubCommit.generateCleanJsonPayload(this.items);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      importLocalJson(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const parsed = JSON.parse(e.target.result);
+            const records = parsed.records || (Array.isArray(parsed) ? parsed : []);
+            if (records.length === 0) throw new Error("Format records kosong.");
+            
+            this.items = records.map(r => this.normalizeItemStructure(r));
+            LocalNotification.show("Impor berhasil.");
+            this.render();
+          } catch (err) {
+            alert("Format berkas tidak valid.");
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      filter(midVal, descVal) {
+        this.filterMid = String(midVal || "").trim().toLowerCase();
+        this.filterDesc = String(descVal || "").trim().toLowerCase();
+        this.render();
+      }
+
+      render() {
+        const container = document.getElementById("cardContainer");
+        const countEl = document.getElementById("itemCount");
+        const imgCountEl = document.getElementById("imgCount");
+        const noImgCountEl = document.getElementById("noImgCount");
+        const filteredCountLabel = document.getElementById("filteredCountLabel");
+        const filteredCountEl = document.getElementById("filteredCount");
+        if (!container) return;
+
+        // Hitung statistik berdasarkan gambar aktual di server dan local preview
+        let hasImageCount = 0;
+        this.items.forEach(item => {
+           const hasLocalPreview = !!item.localImagePreview;
+           const hasActualRemoteImage = item.img && this.remoteImages.has(item.img);
+           
+           if (hasLocalPreview || hasActualRemoteImage) {
+              hasImageCount++;
+           }
+        });
+        const noImageCount = this.items.length - hasImageCount;
+
+        const filtered = this.items.filter(item => {
+          const matchMid = !this.filterMid || String(item.mid || "").toLowerCase().includes(this.filterMid);
+          const matchDesc = !this.filterDesc || 
+                            String(item.deskripsi || "").toLowerCase().includes(this.filterDesc) || 
+                            String(item.notasi || "").toLowerCase().includes(this.filterDesc);
+          return matchMid && matchDesc;
+        });
+
+        if (countEl) countEl.innerText = this.items.length;
+        if (imgCountEl) imgCountEl.innerText = hasImageCount;
+        if (noImgCountEl) noImgCountEl.innerText = noImageCount;
+        
+        if (filteredCountLabel && filteredCountEl) {
+          if (this.filterMid || this.filterDesc) {
+            filteredCountLabel.classList.remove("hidden");
+            filteredCountEl.innerText = filtered.length;
+          } else {
+            filteredCountLabel.classList.add("hidden");
+          }
+        }
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full text-center py-12 text-gray-400 bg-white dark:bg-slate-900 rounded-3xl">
+              <p class="text-sm font-semibold">Tidak ditemukan data.</p>
+            </div>`;
+          return;
+        }
+
+        const htmlBuffer = [];
+        this.items.forEach((item, idx) => {
+          const matchMid = !this.filterMid || String(item.mid || "").toLowerCase().includes(this.filterMid);
+          const matchDesc = !this.filterDesc || 
+                            String(item.deskripsi || "").toLowerCase().includes(this.filterDesc) || 
+                            String(item.notasi || "").toLowerCase().includes(this.filterDesc);
+          if (!matchMid || !matchDesc) return;
+
+          let hasImage = false;
+          let imgSrc = "";
+          let isMissing = false; // Indikator jika tercatat di JSON namun tidak ada di Server
+
+          if (item.localImagePreview) {
+            hasImage = true;
+            imgSrc = item.localImagePreview;
+          } else if (item.img && item.img !== "-" && item.img !== "") {
+            if (this.remoteImages.has(item.img)) {
+              hasImage = true;
+              imgSrc = `${this.imageFolder}${item.img}`;
+            } else {
+              isMissing = true;
+            }
+          }
+
+          const imageElementHtml = hasImage
+            ? `<img src="${imgSrc}" class="w-full h-full object-contain">`
+            : isMissing 
+              ? `<div class="w-full h-full flex flex-col items-center justify-center p-1 text-center"><span class="text-[9px] leading-tight font-bold text-red-500 uppercase">Gambar<br>Hilang</span></div>`
+              : `<div class="w-full h-full flex flex-col items-center justify-center p-2"><span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Kosong</span></div>`;
+
+          htmlBuffer.push(`
+            <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col gap-3.5 transition-colors">
+              <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2.5">
+                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full uppercase">#${this.items.length - idx}</span>
+                <button onclick="deleteCard(${idx})" class="text-red-500 hover:text-red-700 text-[10px] font-bold uppercase transition">Hapus</button>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2">
+                <div class="col-span-2">
+                  <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">MID</label>
+                  <input type="text" value="${item.mid || ''}" oninput="updateField(${idx}, 'mid', this.value)" class="w-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div class="col-span-1">
+                  <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">TDK</label>
+                  <input type="text" value="${item.tdk || ''}" oninput="updateField(${idx}, 'tdk', this.value)" class="w-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-2.5 py-2 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+              </div>
+
+              <div>
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">Notasi</label>
+                <input type="text" value="${item.notasi || ''}" oninput="updateField(${idx}, 'notasi', this.value)" class="w-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              </div>
+
+              <div>
+                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">Deskripsi</label>
+                <textarea oninput="updateField(${idx}, 'deskripsi', this.value)" rows="2" class="w-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none">${item.deskripsi || ''}</textarea>
+              </div>
+
+              <div class="flex items-center gap-3 bg-gray-50 dark:bg-slate-800/60 rounded-2xl p-2.5 border border-gray-100 dark:border-slate-800/80 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700/60 transition" onclick="triggerAndroidFilePicker(${idx})">
+                <div class="w-12 h-12 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  ${imageElementHtml}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Aset Gambar</p>
+                  <p class="text-[11px] font-mono font-medium truncate text-gray-600 dark:text-gray-400">${item.img || '-'}</p>
+                </div>
+              </div>
+            </div>`);
+        });
+
+        container.innerHTML = htmlBuffer.join("");
+      }
+    }
+
+    const adminApp = new AdminApp();
+
+    function triggerAndroidFilePicker(index) {
+      activeCardIndexForUpload = index;
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobileDevice) {
+        const modal = document.getElementById("storagePermissionModal");
+        if (modal) modal.classList.remove("hidden");
+      } else {
+        executeNativeFilePicker();
+      }
+    }
+
+    function requestAndroidStorageAccess() {
+      const modal = document.getElementById("storagePermissionModal");
+      if (modal) modal.classList.add("hidden");
+      
+      if (window.showOpenFilePicker) {
+        window.showOpenFilePicker({
+          types: [{ accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.heic'] } }],
+          multiple: false
+        }).then(async (handles) => {
+          if (handles && handles.length > 0) {
+            const file = await handles[0].getFile();
+            adminApp.handleImageFileChange(activeCardIndexForUpload, file);
+          }
+        }).catch(() => executeNativeFilePicker());
+      } else {
+        executeNativeFilePicker();
+      }
+    }
+
+    function closeStorageModal() {
+      const modal = document.getElementById("storagePermissionModal");
+      if (modal) modal.classList.add("hidden");
+      executeNativeFilePicker();
+    }
+
+    function executeNativeFilePicker() {
+      const hiddenInput = document.createElement("input");
+      hiddenInput.type = "file";
+      hiddenInput.accept = "image/*";
+      hiddenInput.style.display = "none";
+      
+      hiddenInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file && activeCardIndexForUpload !== null) {
+          adminApp.handleImageFileChange(activeCardIndexForUpload, file);
+        }
+        document.body.removeChild(hiddenInput);
+      };
+
+      document.body.appendChild(hiddenInput);
+      hiddenInput.click();
+    }
+
+    async function unlockDashboard() {
+      const token = document.getElementById("gateTokenInput").value.trim();
+      const alertBox = document.getElementById("gateAlert");
+      if (!token) {
+        alertBox.innerText = "Token diperlukan.";
+        alertBox.classList.remove("hidden");
+        return;
+      }
+      
+      try {
+        adminApp.initializeSystem(token);
+        await adminApp.repository.branchManager.getBranch();
+        
+        document.getElementById("tokenGate").classList.add("hidden");
+        document.getElementById("adminDashboard").classList.remove("hidden");
+        localStorage.setItem("github_admin_token", token);
+        
+        await adminApp.loadAllData();
+      } catch (err) {
+        alertBox.innerText = "Token tidak valid.";
+        alertBox.classList.remove("hidden");
+      }
+    }
+
+    function lockDashboardBack() {
+      if (confirm("Apakah Anda yakin ingin keluar?")) {
+        localStorage.removeItem("github_admin_token");
+        window.location.href = "index.html"; 
+      }
+    }
+
+    async function loadData() { await adminApp.loadAllData(); }
+    async function commitAllJsonChanges() { await adminApp.saveChanges(); }
+    function downloadJsonFile() { adminApp.downloadLocalJson(); }
+    
+    function handleImportJson(event) {
+      const file = event.target.files[0];
+      if (file) {
+        adminApp.importLocalJson(file);
+        event.target.value = "";
+      }
+    }
+
+    let filterTimeoutId = null;
+    function debounceFilterCards() {
+      if (filterTimeoutId) clearTimeout(filterTimeoutId);
+      filterTimeoutId = setTimeout(() => {
+        const midVal = document.getElementById("searchMidInput").value;
+        const descVal = document.getElementById("filterDescInput").value;
+        adminApp.filter(midVal, descVal);
+      }, 150);
+    }
+
+    function addNewCard() { adminApp.addNewItem(); }
+    function updateField(index, field, value) { adminApp.updateItemField(index, field, value); }
+    function deleteCard(index) { adminApp.removeItem(index); }
+    
+    function groupImagesByNotation() {
+      if (confirm("Lanjutkan sinkronisasi massal gambar?")) {
+        adminApp.groupAllImagesByNotation();
+      }
+    }
+
+    function closeSyncModal(shouldSync) { adminApp.handleSyncChoice(shouldSync); }
+    function confirmSharedRename(confirmed) {
+      const customName = document.getElementById("sharedFileNameInput").value;
+      adminApp.applySharedRename(confirmed, customName);
+    }
+
+    document.getElementById("gateTokenInput")?.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        unlockDashboard();
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedToken = localStorage.getItem("github_admin_token");
+      if (savedToken) {
+        document.getElementById("gateTokenInput").value = savedToken;
+        unlockDashboard();
+      }
+    });
+  </script>
+</body>
+</html>

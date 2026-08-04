@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Passed</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem 0.75rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-theme {
+            background: linear-gradient(135deg, #e0f2fe 0%, #ffffff 50%, #f8fafc 100%);
+        }
+        body.dark-theme {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+
+        .glass-card {
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05);
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+
+        @media (min-width: 640px) {
+            .glass-card {
+                border-radius: 32px;
+            }
+        }
+
+        .btn-gradient { background: linear-gradient(90deg, #2b499b 0%, #3b82f6 100%); }
+        .btn-gradient:hover { background: linear-gradient(90deg, #1e3a8a 0%, #2563eb 100%); }
+        
+        .fade-in {
+            animation: fadeIn 0.35s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-modal {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="antialiased text-gray-800 dark:text-gray-100 light-theme">
+
+    <div id="app-container" class="glass-card w-full max-w-[440px] lg:max-w-6xl bg-white/95 dark:bg-slate-900/90 border border-white/50 dark:border-slate-800 mb-6 transition-all duration-300 relative mt-2 sm:mt-4 p-5 sm:p-7">
+
+        <div class="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-2 z-20">
+            <a href="admin.html" title="Halaman Admin"
+               class="p-2 rounded-xl bg-gray-100/80 dark:bg-slate-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center shadow-sm border border-gray-200/50 dark:border-slate-700/50">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </a>
+
+            <button id="theme-toggle" class="p-2 rounded-xl bg-gray-100/80 dark:bg-slate-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center shadow-sm border border-gray-200/50 dark:border-slate-700/50" title="Ubah Tema">
+                <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                </svg>
+                <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <div id="left-panel" class="lg:col-span-5 flex flex-col justify-start">
+                
+                <div class="text-left mb-3 pr-20">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-[#1a265a] dark:text-white mb-1 tracking-tight">QUALITY PASSED</h2>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
+                        Masukkan kode MID untuk mengakses detail spesifikasi
+                    </p>
+                </div>
+
+                <div class="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl p-3.5 shadow-sm text-left mb-4">
+                    <div class="flex items-center gap-2 mb-1 text-amber-800 dark:text-amber-400 font-bold text-xs tracking-wider uppercase">
+                        <svg class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <span>Penting</span>
+                    </div>
+                    <p class="text-xs text-amber-900/90 dark:text-amber-200/90 font-medium leading-relaxed mb-1.5">
+                        Notasi susunan dapat berubah sewaktu-waktu dan mungkin tidak sepenuhnya sesuai dengan kondisi aktual.
+                    </p>
+                    <div class="pt-1.5 border-t border-amber-200/60 dark:border-amber-800/40 text-[11px] text-amber-800/80 dark:text-amber-300/80 leading-normal">
+                        <span class="font-semibold">Catatan:</span> Apabila terdapat perubahan notasi susunan yang belum diperbarui, silakan menginfokan kepada tim kami.
+                    </div>
+                </div>
+
+                <div class="w-full flex flex-col">
+                    <div class="relative mb-3">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                            </svg>
+                        </div>
+                        
+                        <input type="text" id="mid-input" 
+                            inputmode="numeric" 
+                            pattern="[0-9]*"
+                            class="w-full pl-11 pr-4 py-3 rounded-2xl border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all text-base placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-800/80 shadow-sm"
+                            placeholder="Contoh: 80888" autocomplete="off">
+
+                        <div id="suggestions-box" class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden z-50 hidden max-h-60 overflow-y-auto hide-scrollbar"></div>
+                    </div>
+
+                    <button id="btn-search" class="w-full btn-gradient text-white font-bold text-base py-3 rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2 mb-4">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        Cari
+                    </button>
+
+                    <div id="history-section" class="text-left fade-in">
+                        <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 tracking-widest mb-2 uppercase">RIWAYAT PENCARIAN:</p>
+                        <div id="history-container" class="w-full"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="right-panel" class="lg:col-span-7 w-full lg:border-l lg:border-gray-100 dark:lg:border-slate-800/80 lg:pl-8 flex flex-col justify-start">
+
+                <div id="view-loading" class="hidden flex-col items-center justify-center py-12 fade-in lg:pt-8">
+                    <div class="w-10 h-10 border-4 border-blue-100 dark:border-slate-700 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin mb-3"></div>
+                    <p class="text-blue-600 dark:text-blue-400 font-semibold animate-pulse text-xs">Mencari Data MID...</p>
+                </div>
+
+                <div id="view-result" class="hidden flex-col w-full fade-in lg:pt-8">
+                    
+                    <button id="btn-back-mobile" class="lg:hidden flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 mb-4 bg-blue-50 dark:bg-blue-950/50 px-3 py-2 rounded-xl w-fit border border-blue-100 dark:border-blue-900/50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <span>Kembali ke Pencarian</span>
+                    </button>
+
+                    <div class="flex flex-row items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-slate-800">
+                        <div>
+                            <p class="text-[11px] text-gray-500 dark:text-gray-400 font-medium mb-0.5">Hasil untuk MID:</p>
+                            <h2 id="res-mid" class="text-2xl sm:text-3xl font-black text-[#1e3a8a] dark:text-blue-400 leading-none"></h2>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-400 text-xs font-bold border border-green-200 dark:border-green-800/60 shadow-sm">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            PASSED
+                        </span>
+                    </div>
+
+                    <div id="res-container" class="space-y-4 w-full"></div>
+                </div>
+
+                <div id="view-error" class="hidden flex-col items-center justify-center py-10 text-center fade-in lg:pt-8">
+                    <button id="btn-back-error" class="lg:hidden flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 mb-6 bg-blue-50 dark:bg-blue-950/50 px-3 py-2 rounded-xl w-fit border border-blue-100 dark:border-blue-900/50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <span>Kembali ke Pencarian</span>
+                    </button>
+
+                    <div class="w-14 h-14 bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 rounded-full flex items-center justify-center mb-3">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <h2 class="text-base font-bold text-gray-800 dark:text-gray-200 mb-1">Data Tidak Ditemukan</h2>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs mb-4">Kode MID <strong id="err-mid" class="text-gray-800 dark:text-gray-200"></strong> tidak terdapat dalam sistem.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="image-modal" class="fixed inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 bg-slate-950/70 backdrop-blur-[4px] p-4">
+        <div id="modal-frame" class="relative glass-modal bg-white/20 dark:bg-slate-900/40 border border-white/40 dark:border-slate-700/50 rounded-[2rem] p-3 sm:p-4 transform scale-95 transition-transform duration-300 max-w-full max-h-full flex justify-center items-center">
+            <button id="btn-close-modal" class="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white dark:bg-slate-800 text-gray-800 dark:text-white hover:text-red-500 dark:hover:text-red-400 shadow-xl rounded-full w-9 h-9 flex items-center justify-center font-bold text-base z-10 transition-all border border-gray-100 dark:border-slate-700 hover:scale-110 active:scale-95">
+                ✕
+            </button>
+            <img id="modal-img" src="" alt="Preview Full" class="max-w-full max-h-[85vh] rounded-[1.5rem] object-contain bg-white dark:bg-slate-900 shadow-inner">
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-slate-100 text-white dark:text-gray-900 text-xs font-semibold px-5 py-2.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-[110] whitespace-nowrap">
+        Masukkan kode MID terlebih dahulu!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(reg => console.log('SW terdaftar:', reg.scope))
+                        .catch(err => console.error('Gagal SW:', err));
+                });
+            }
+
+            const CONFIG = {
+                jsonPath: './deskripsi.json',
+                imageFolder: './images/',
+                maxHistory: 10
+            };
+
+            let allDataCache = null;
+            let currentState = 'placeholder';
+            
+            let historyData = [
+                { mid: '1160916', deskripsi: '' },
+                { mid: '63212', deskripsi: '' },
+                { mid: '63128', deskripsi: '' },
+                { mid: '63129', deskripsi: '' },
+                { mid: '63240', deskripsi: '' },
+                { mid: '61171', deskripsi: '' },
+                { mid: '17009404', deskripsi: '' },
+                { mid: '1462626', deskripsi: '' },
+                { mid: '80888', deskripsi: '' },
+                { mid: '61862', deskripsi: '' }
+            ];
+
+            try {
+                const stored = localStorage.getItem('midHistory_v7');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) historyData = parsed;
+                }
+            } catch (e) {
+                console.warn("Gagal membaca history storage", e);
+            }
+
+            const el = {
+                leftPanel: document.getElementById('left-panel'),
+                rightPanel: document.getElementById('right-panel'),
+                
+                input: document.getElementById('mid-input'),
+                suggestionsBox: document.getElementById('suggestions-box'),
+                btnSearch: document.getElementById('btn-search'),
+                btnBackMobile: document.getElementById('btn-back-mobile'),
+                btnBackError: document.getElementById('btn-back-error'),
+                
+                historyContainer: document.getElementById('history-container'),
+                
+                viewLoading: document.getElementById('view-loading'),
+                viewResult: document.getElementById('view-result'),
+                viewError: document.getElementById('view-error'),
+                
+                resMid: document.getElementById('res-mid'),
+                resContainer: document.getElementById('res-container'),
+                errMid: document.getElementById('err-mid'),
+                toast: document.getElementById('toast'),
+
+                modal: document.getElementById('image-modal'),
+                modalFrame: document.getElementById('modal-frame'),
+                modalImg: document.getElementById('modal-img'),
+                btnCloseModal: document.getElementById('btn-close-modal'),
+
+                themeToggle: document.getElementById('theme-toggle'),
+                lightIcon: document.getElementById('theme-toggle-light-icon'),
+                darkIcon: document.getElementById('theme-toggle-dark-icon')
+            };
+
+            // Dark Mode
+            function initTheme() {
+                const userTheme = localStorage.getItem('appTheme');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                setDarkMode(userTheme === 'dark' || (!userTheme && systemPrefersDark));
+            }
+
+            function setDarkMode(isDark) {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    document.body.classList.remove('light-theme');
+                    document.body.classList.add('dark-theme');
+                    el.lightIcon.classList.remove('hidden');
+                    el.darkIcon.classList.add('hidden');
+                    localStorage.setItem('appTheme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.body.classList.remove('dark-theme');
+                    document.body.classList.add('light-theme');
+                    el.lightIcon.classList.add('hidden');
+                    el.darkIcon.classList.remove('hidden');
+                    localStorage.setItem('appTheme', 'light');
+                }
+            }
+
+            el.themeToggle.addEventListener('click', () => {
+                setDarkMode(!document.documentElement.classList.contains('dark'));
+            });
+
+            initTheme();
+
+            // Pra-muat data agar saran bisa langsung muncul saat mengetik
+            fetchData();
+
+            // Set Tampilan Awal
+            showState('placeholder');
+            enrichHistoryDescriptions();
+
+            // ==========================================
+            // FITUR BARU: SARAN KETIK (AUTOCOMPLETE)
+            // ==========================================
+            el.input.addEventListener('input', (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                showSuggestions(query);
+            });
+
+            // Sembunyikan saran kalau klik di luar area input
+            document.addEventListener('click', (e) => {
+                if (!el.input.contains(e.target) && !el.suggestionsBox.contains(e.target)) {
+                    el.suggestionsBox.classList.add('hidden');
+                }
+            });
+
+            function showSuggestions(query) {
+                if (!query || !allDataCache) {
+                    el.suggestionsBox.classList.add('hidden');
+                    return;
+                }
+
+                // Filter MID atau Deskripsi yang cocok (maksimal 7 saran agar rapi)
+                const matches = allDataCache.filter(item => {
+                    const midStr = String(item.mid).toLowerCase();
+                    const descStr = (item.deskripsi || '').toLowerCase();
+                    return midStr.includes(query) || descStr.includes(query);
+                }).slice(0, 7);
+
+                if (matches.length === 0) {
+                    el.suggestionsBox.classList.add('hidden');
+                    return;
+                }
+
+                el.suggestionsBox.innerHTML = '';
+                
+                matches.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5 transition-colors border-b last:border-b-0 border-gray-100 dark:border-slate-700/50';
+                    btn.innerHTML = `
+                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <div class="truncate text-xs sm:text-sm">
+                            <span class="font-bold text-blue-600 dark:text-blue-400">${item.mid}</span>
+                            <span class="text-gray-500 dark:text-gray-400 ml-1 font-normal truncate">- ${item.deskripsi || ''}</span>
+                        </div>
+                    `;
+                    btn.onclick = () => {
+                        el.input.value = item.mid;
+                        el.suggestionsBox.classList.add('hidden');
+                        handleSearch(item.mid);
+                    };
+                    el.suggestionsBox.appendChild(btn);
+                });
+
+                el.suggestionsBox.classList.remove('hidden');
+            }
+
+            // Event Listeners Navigation
+            el.btnSearch.addEventListener('click', () => handleSearch());
+            el.input.addEventListener('keypress', (e) => { 
+                if (e.key === 'Enter') {
+                    el.suggestionsBox.classList.add('hidden');
+                    handleSearch(); 
+                }
+            });
+            if (el.btnBackMobile) el.btnBackMobile.addEventListener('click', resetView);
+            if (el.btnBackError) el.btnBackError.addEventListener('click', resetView);
+
+            window.addEventListener('resize', () => showState(currentState));
+
+            // Modal Events
+            el.resContainer.addEventListener('click', (e) => {
+                if (e.target.tagName === 'IMG' && e.target.id !== 'modal-img') {
+                    openModal(e.target.src);
+                }
+            });
+            el.btnCloseModal.addEventListener('click', closeModal);
+            el.modal.addEventListener('click', (e) => {
+                if (e.target === el.modal || e.target === el.modalFrame) closeModal();
+            });
+
+            function showToast(message) {
+                el.toast.textContent = message;
+                el.toast.classList.remove('opacity-0', 'pointer-events-none');
+                el.toast.classList.add('opacity-100');
+                setTimeout(() => {
+                    el.toast.classList.remove('opacity-100');
+                    el.toast.classList.add('opacity-0', 'pointer-events-none');
+                }, 3000);
+            }
+
+            function openModal(src) {
+                el.modalImg.src = src;
+                el.modal.classList.remove('opacity-0', 'pointer-events-none');
+                el.modalFrame.classList.remove('scale-95');
+                el.modalFrame.classList.add('scale-100');
+            }
+
+            function closeModal() {
+                el.modal.classList.add('opacity-0', 'pointer-events-none');
+                el.modalFrame.classList.remove('scale-100');
+                el.modalFrame.classList.add('scale-95');
+                setTimeout(() => { el.modalImg.src = ''; }, 300);
+            }
+
+            function resetView() {
+                el.input.value = '';
+                el.suggestionsBox.classList.add('hidden');
+                showState('placeholder');
+                el.input.focus();
+            }
+
+            function toggleView(element, showStatus) {
+                if (!element) return;
+                if (showStatus) {
+                    element.classList.remove('hidden');
+                    element.classList.add('flex');
+                } else {
+                    element.classList.add('hidden');
+                    element.classList.remove('flex');
+                }
+            }
+
+            function showState(stateName) {
+                currentState = stateName;
+                const isMobile = window.innerWidth < 1024;
+
+                if (stateName === 'placeholder') {
+                    if (isMobile) {
+                        el.leftPanel.classList.remove('hidden');
+                        el.rightPanel.classList.add('hidden');
+                    } else {
+                        el.leftPanel.classList.remove('hidden');
+                        el.rightPanel.classList.remove('hidden');
+                    }
+                } else {
+                    if (isMobile) {
+                        el.leftPanel.classList.add('hidden');
+                        el.rightPanel.classList.remove('hidden');
+                    } else {
+                        el.leftPanel.classList.remove('hidden');
+                        el.rightPanel.classList.remove('hidden');
+                    }
+                }
+                
+                toggleView(el.viewLoading, stateName === 'loading');
+                toggleView(el.viewResult, stateName === 'result');
+                toggleView(el.viewError, stateName === 'error');
+
+                renderHistory();
+            }
+
+            async function fetchData() {
+                if (allDataCache) return allDataCache;
+                if (window.location.protocol === 'blob:') return getFallbackData();
+
+                try {
+                    let fetchUrl = `${CONFIG.jsonPath}?t=${Date.now()}`;
+                    const response = await fetch(fetchUrl);
+                    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                    
+                    const data = await response.json();
+                    let records = Array.isArray(data) ? data : (data.records || data.data || []);
+
+                    if (records.length > 0) {
+                        allDataCache = records;
+                        return allDataCache;
+                    } else {
+                        throw new Error("Format JSON kosong");
+                    }
+                } catch (error) {
+                    allDataCache = getFallbackData();
+                    return allDataCache;
+                }
+            }
+
+            async function enrichHistoryDescriptions() {
+                try {
+                    const records = await fetchData();
+                    let updated = false;
+                    
+                    historyData = historyData.map(item => {
+                        const midStr = typeof item === 'object' ? String(item.mid) : String(item);
+                        const match = records.find(r => String(r.mid) === midStr);
+                        if (match && match.deskripsi) {
+                            updated = true;
+                            return { mid: midStr, deskripsi: match.deskripsi };
+                        }
+                        return typeof item === 'object' ? item : { mid: midStr, deskripsi: '' };
+                    });
+
+                    if (updated) {
+                        try {
+                            localStorage.setItem('midHistory_v7', JSON.stringify(historyData));
+                        } catch (e) {}
+                        renderHistory();
+                    }
+                } catch (e) {
+                    console.warn("Gagal memperbarui deskripsi riwayat otomatis:", e);
+                }
+            }
+
+            async function handleSearch(overrideMid = null) {
+                const mid = overrideMid || el.input.value.trim();
+                el.suggestionsBox.classList.add('hidden');
+                
+                if (!mid) {
+                    showToast('Silakan masukkan kode MID');
+                    el.input.focus();
+                    return;
+                }
+
+                el.input.blur();
+                showState('loading');
+
+                try {
+                    const records = await fetchData();
+                    await new Promise(r => setTimeout(r, 200));
+
+                    const matches = records.filter(record => String(record.mid) === String(mid));
+
+                    if (matches.length > 0) {
+                        renderResult(mid, matches);
+                        saveHistory(mid, matches[0].deskripsi);
+                        showState('result');
+                    } else {
+                        el.errMid.textContent = mid;
+                        showState('error');
+                    }
+                } catch (error) {
+                    el.errMid.textContent = mid;
+                    showState('error');
+                }
+            }
+
+            function renderResult(mid, matches) {
+                el.resMid.textContent = mid;
+                el.resContainer.innerHTML = ''; 
+                
+                const fallbackImg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2JkNWUxIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiByeD0iMiIgcnk9IjIiPjwvcmVjdD48Y2lyY2xlIGN4PSI4LjUiIGN5PSI4LjUiIHI9IjEuNSI+PC9jaXJjbGU+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSI+PC9wb2x5bGluZT48L3N2Zz4=";
+
+                matches.forEach((item) => {
+                    // Penyesuaian agar pemanggilan nama file gambar dari properti `item.img` di JSON 100% aman & fleksibel
+                    const cleanedImgName = item.img ? String(item.img).trim() : '';
+                    const imgSrc = (cleanedImgName && cleanedImgName !== '-') ? `${CONFIG.imageFolder}${cleanedImgName}` : fallbackImg;
+                    const hasTdk = item.tdk && String(item.tdk).trim() !== '' && String(item.tdk).trim() !== '-';
+                    
+                    const tdkHtml = hasTdk ? `
+                        <div class="bg-gray-50 dark:bg-slate-800/60 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
+                            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 block">No. TDK</span>
+                            <span class="text-gray-700 dark:text-gray-300 font-semibold text-xs sm:text-sm">${item.tdk}</span>
+                        </div>
+                    ` : '';
+
+                    const cardHtml = `
+                        <div class="bg-white dark:bg-slate-800/90 border border-gray-100 dark:border-slate-700/60 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                            <div class="w-full min-h-[180px] max-h-[250px] bg-gray-50 dark:bg-slate-900/60 relative border-b border-gray-100 dark:border-slate-800 flex items-center justify-center p-3">
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-white/30 dark:bg-slate-900/50 backdrop-blur-[2px] z-20 pointer-events-none rounded-t-2xl">
+                                    <span class="bg-black/75 dark:bg-white/80 text-white dark:text-gray-900 text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg">🔍 Perbesar</span>
+                                </div>
+                                <img src="${imgSrc}" alt="${item.deskripsi || 'Gambar'}" 
+                                     class="max-w-full max-h-[220px] object-contain z-10 relative rounded-lg cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+                                     onerror="this.onerror=null; this.src='${fallbackImg}';">
+                            </div>
+                            
+                            <div class="p-3.5 sm:p-4 flex flex-col justify-center space-y-2.5">
+                                <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-100/50 dark:border-blue-900/40">
+                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-0.5 block">Deskripsi / Nama Produk</span>
+                                    <span class="text-gray-800 dark:text-gray-100 font-bold text-sm sm:text-base">${item.deskripsi || '-'}</span>
+                                </div>
+                                
+                                ${tdkHtml}
+
+                                <div class="bg-gray-50 dark:bg-slate-800/60 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
+                                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 block">Notasi / Keterangan</span>
+                                    <span class="text-gray-600 dark:text-gray-300 font-medium text-xs sm:text-sm leading-relaxed">${item.notasi || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    el.resContainer.insertAdjacentHTML('beforeend', cardHtml);
+                });
+            }
+
+            function saveHistory(mid, deskripsi) {
+                if(!mid) return;
+                if(!Array.isArray(historyData)) historyData = [];
+
+                historyData = historyData.filter(item => (typeof item === 'object' ? item.mid : item) !== mid);
+                historyData.unshift({ mid: mid, deskripsi: deskripsi || '' });
+                if (historyData.length > CONFIG.maxHistory) historyData.pop();
+                
+                try {
+                    localStorage.setItem('midHistory_v7', JSON.stringify(historyData));
+                } catch (e) { console.warn("Local storage blocked"); }
+            }
+
+            function renderHistory() {
+                if (!el.historyContainer) return;
+                el.historyContainer.innerHTML = '';
+
+                if (!Array.isArray(historyData) || historyData.length === 0) {
+                    el.historyContainer.innerHTML = '<span class="text-xs text-gray-400 dark:text-gray-500">Belum ada riwayat</span>';
+                    return;
+                }
+
+                el.historyContainer.className = 'flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-1 hide-scrollbar w-full';
+                
+                historyData.forEach(item => {
+                    const mid = typeof item === 'object' ? item.mid : item;
+                    const desc = typeof item === 'object' ? item.deskripsi : '';
+                    
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-left bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium px-3 py-2 rounded-xl text-xs transition-all shadow-sm border border-gray-200/70 dark:border-slate-700/80 hover:border-blue-300 dark:hover:border-blue-600 flex justify-between items-center';
+                    
+                    const labelText = (desc && desc !== '-') ? `${mid} - ${desc}` : mid;
+                    btn.innerHTML = `<span class="truncate font-semibold">${labelText}</span><svg class="w-3.5 h-3.5 text-gray-400 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                    
+                    btn.onclick = () => {
+                        el.input.value = mid;
+                        handleSearch(mid);
+                    };
+                    el.historyContainer.appendChild(btn);
+                });
+            }
+
+            function getFallbackData() {
+                return [
+                    { "mid": "80888", "deskripsi": "SKL Sachet 22 g 12+1", "notasi": "22 Dus x 5 Tier = 110 Dus Maximum Stacking 2 Palet Shelf life 2 tahun", "tdk": "TDK/R&D/PAC/12/0", "img": "TDK_R_D_PAC_12_0.png" },
+                    { "mid": "62626", "deskripsi": "Sosoft Twinpack Sachet 80 ml 3+1", "notasi": "9 kardus x 5 tier = 45 dus Maximum Stacking 2 pallet Shelf life 2 tahun 1/2", "tdk": "TDK/R&D/PAC/12/0", "img": "TDK_R_D_PAC_12_0_7.png" },
+                    { "mid": "61862", "deskripsi": "SKL Sachet 22 g 12+1", "notasi": "22 Dus x 5 Tier = 110 Dus Maximum Stacking 2 Palet Shelf life 2 tahun", "tdk": "", "img": "TDK_R_D_PAC_12_0.png" },
+                    { "mid": "61171", "deskripsi": "EDW 675 gr", "notasi": "10 Box x 5 tier = 50 Box Maximum Stacking 2 Palet Shelf life 2 Tahun", "tdk": "TDK/R&D/PAC/07/052", "img": "TDK_R_D_PAC_07_052.png" }
+                ];
+            }
+
+        });
+    </script>
+</body>
+</html>
