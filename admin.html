@@ -98,8 +98,8 @@
     
     <header class="flex justify-between items-center bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm transition-colors">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-600 flex items-center justify-center text-white font-black text-lg shadow-md">QP</div>
-        <h1 class="text-lg font-black text-gray-900 dark:text-white tracking-tight">DASHBOARD</h1>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-600 flex items-center justify-center text-white font-black text-lg shadow-md">QC</div>
+        <h1 class="text-lg font-black text-gray-900 dark:text-white tracking-tight">DASHBOARD ADMIN</h1>
       </div>
       <div class="flex items-center gap-2">
         <button id="themeToggleBtn" onclick="toggleAppTheme()" class="p-2.5 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition" title="Ubah Tema">
@@ -119,19 +119,19 @@
         <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase text-center mb-1">Aksi GitHub</h2>
         <div class="grid grid-cols-2 gap-2">
           <button onclick="loadData()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-sm text-xs active:scale-[0.98]">
-            Tarik Data
+            Load Github
           </button>
           <button onclick="commitAllJsonChanges()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-sm text-xs active:scale-[0.98]">
             Commit
           </button>
           <button onclick="groupImagesByNotation()" class="col-span-2 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-3 rounded-xl transition shadow-sm text-xs active:scale-[0.98]">
-            Samakan Gambar Bernotasi
+            Samakan Gambar Bernotasi Sama
           </button>
         </div>
       </div>
 
       <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col gap-3 justify-center transition-colors">
-        <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase text-center mb-1">Backup JSON</h2>
+        <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase text-center mb-1">JSON File</h2>
         <div class="grid grid-cols-2 gap-2">
           <button onclick="downloadJsonFile()" class="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 hover:bg-gray-200 text-gray-700 dark:text-gray-300 font-bold py-2.5 px-3 rounded-xl transition text-xs shadow-sm">
             Ekspor
