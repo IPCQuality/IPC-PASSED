@@ -1,7 +1,21 @@
 {
   "version": 1,
-  "count": 204,
+  "count": 206,
   "records": [
+    {
+      "mid": "1361170",
+      "deskripsi": "EDW JN",
+      "notasi": "20 x 6 = 120 box",
+      "tdk": "",
+      "img": "20x6=120box.jpg"
+    },
+    {
+      "mid": "1262739",
+      "deskripsi": "EDW NJ",
+      "notasi": "20 x 6 = 120 box",
+      "tdk": "",
+      "img": "20x6=120box.jpg"
+    },
     {
       "mid": "62984",
       "deskripsi": "BOOM CINTA LIQ JRC 4.5LT LAVENDER",
