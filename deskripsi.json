@@ -1,7 +1,21 @@
 {
   "version": 1,
-  "count": 206,
+  "count": 208,
   "records": [
+    {
+      "mid": "63586",
+      "deskripsi": "SOKLIN LIQ PCH 700ML HIJAB (BANDED)",
+      "notasi": "12 x 9 = 108 box",
+      "tdk": "",
+      "img": "12x9=108box.jpg"
+    },
+    {
+      "mid": "63587",
+      "deskripsi": "SOKLIN LIQ PCH 70/ML LAVENDER (BANDED)",
+      "notasi": "12 x 9 = 108 box",
+      "tdk": "",
+      "img": "12x9=108box.jpg"
+    },
     {
       "mid": "1361170",
       "deskripsi": "Ekonomi Dwl Pch 125Gr Jeruk Nipis 3PG1",
@@ -273,7 +287,7 @@
       "deskripsi": "EKONOMI DWL PCH 650ML JERUK NPS /P",
       "notasi": "10 x 6 = 60 Box",
       "tdk": "GAMBAR BELUM DIUBAH",
-      "img": "10x5=50box.jpg"
+      "img": "10x6=60box.jpg"
     },
     {
       "mid": "1062740",
