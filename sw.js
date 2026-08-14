@@ -1,5 +1,5 @@
 // Nama cache internal
-const CACHE_NAME = 'ipc-passed-cache-v1';
+const CACHE_NAME = 'ipc-passed-cache-v1.3';
 
 // File dasar yang langsung di-pre-cache saat SW terinstall
 const PRECACHE_ASSETS = [
