@@ -16,9 +16,10 @@
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             margin: 0;
-            padding: 0; /* Diubah menjadi 0 agar fill screen penuh */
+            padding: 1rem 0.75rem;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
@@ -29,10 +30,16 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
         }
 
-        /* Class glass-card dipertahankan logikanya, namun border-radius disesuaikan dengan class Tailwind di HTML untuk mode full screen */
         .glass-card {
             box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05);
+            border-radius: 24px;
             transition: all 0.3s ease;
+        }
+
+        @media (min-width: 640px) {
+            .glass-card {
+                border-radius: 32px;
+            }
         }
 
         .btn-gradient { background: linear-gradient(90deg, #2b499b 0%, #3b82f6 100%); }
@@ -57,166 +64,158 @@
 </head>
 <body class="antialiased text-gray-800 dark:text-gray-100 light-theme">
 
-    <!-- Container dibuat menjadi fill screen (w-full, min-h-screen) dengan padding responsif -->
-    <div id="app-container" class="glass-card w-full flex-1 min-h-screen bg-white/95 dark:bg-slate-900/90 border-0 transition-all duration-300 relative p-5 sm:p-8 md:p-12 lg:p-16 flex flex-col justify-start items-center rounded-none">
+    <div id="app-container" class="glass-card w-full max-w-[440px] lg:max-w-6xl bg-white/95 dark:bg-slate-900/90 border border-white/50 dark:border-slate-800 mb-6 transition-all duration-300 relative mt-2 sm:mt-4 p-5 sm:p-7">
 
-        <!-- Kontainer pembungkus konten agar rapi di monitor besar (Max-Width 1440px) -->
-        <div class="w-full max-w-[1440px] relative flex-1">
+        <div class="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-2 z-20">
+            <a href="admin.html" title="Halaman Admin"
+               class="p-2 rounded-xl bg-gray-100/80 dark:bg-slate-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center shadow-sm border border-gray-200/50 dark:border-slate-700/50">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </a>
 
-            <!-- Tombol Navigasi diposisikan responsif -->
-            <div class="absolute -top-2 right-0 sm:-top-4 md:-top-6 lg:-top-8 flex items-center gap-2 sm:gap-3 z-20">
-                <a href="admin.html" title="Halaman Admin"
-                   class="p-2.5 sm:p-3 rounded-xl bg-gray-100/80 dark:bg-slate-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center shadow-sm border border-gray-200/50 dark:border-slate-700/50">
-                    <svg class="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                </a>
+            <button id="theme-toggle" class="p-2 rounded-xl bg-gray-100/80 dark:bg-slate-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center shadow-sm border border-gray-200/50 dark:border-slate-700/50" title="Ubah Tema">
+                <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                </svg>
+                <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                </svg>
+            </button>
+        </div>
 
-                <button id="theme-toggle" class="p-2.5 sm:p-3 rounded-xl bg-gray-100/80 dark:bg-slate-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center shadow-sm border border-gray-200/50 dark:border-slate-700/50" title="Ubah Tema">
-                    <svg id="theme-toggle-light-icon" class="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 hidden" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
-                    </svg>
-                    <svg id="theme-toggle-dark-icon" class="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 hidden" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 lg:gap-16 items-start mt-16 sm:mt-20 lg:mt-6 w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <div id="left-panel" class="lg:col-span-5 flex flex-col justify-start">
                 
-                <div id="left-panel" class="lg:col-span-5 flex flex-col justify-start">
-                    
-                    <div class="text-left mb-4 sm:mb-6 lg:pr-10">
-                        <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1a265a] dark:text-white mb-2 sm:mb-3 tracking-tight">QUALITY PASSED</h2>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-base md:text-lg font-medium leading-relaxed">
-                            Masukkan kode MID untuk mengakses detail spesifikasi dan standar mutu.
-                        </p>
-                    </div>
-
-                    <div class="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl md:rounded-3xl p-4 sm:p-5 md:p-6 shadow-sm text-left mb-6 md:mb-8">
-                        <div class="flex items-center gap-2 md:gap-3 mb-2 text-amber-800 dark:text-amber-400 font-bold text-xs sm:text-sm md:text-base tracking-wider uppercase">
-                            <svg class="w-5 h-5 md:w-6 md:h-6 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                            <span>Informasi Penting</span>
-                        </div>
-                        <p class="text-sm md:text-base text-amber-900/90 dark:text-amber-200/90 font-medium leading-relaxed mb-2.5">
-                            Notasi susunan dapat berubah sewaktu-waktu dan mungkin tidak sepenuhnya sesuai dengan kondisi aktual di lapangan.
-                        </p>
-                        <div class="pt-2.5 border-t border-amber-200/60 dark:border-amber-800/40 text-xs sm:text-sm md:text-base text-amber-800/80 dark:text-amber-300/80 leading-normal">
-                            <span class="font-semibold">Catatan:</span> Apabila terdapat perubahan notasi susunan yang belum diperbarui, harap segera menginformasikannya kepada tim operasional kami.
-                        </div>
-                    </div>
-
-                    <div class="w-full flex flex-col">
-                        <div class="relative mb-4 sm:mb-5">
-                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                <svg class="w-6 h-6 md:w-7 md:h-7 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-                                </svg>
-                            </div>
-                            
-                            <input type="text" id="mid-input" 
-                                inputmode="numeric" 
-                                pattern="[0-9]*"
-                                class="w-full pl-14 md:pl-16 pr-5 py-4 sm:py-5 md:py-6 rounded-2xl md:rounded-3xl border-2 border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 transition-all text-lg sm:text-xl md:text-2xl placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-800/80 shadow-sm"
-                                placeholder="Contoh: 80888" autocomplete="off">
-
-                            <div id="suggestions-box" class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden z-50 hidden max-h-72 overflow-y-auto hide-scrollbar"></div>
-                        </div>
-
-                        <button id="btn-search" class="w-full btn-gradient text-white font-bold text-lg sm:text-xl md:text-2xl py-4 sm:py-5 md:py-6 rounded-2xl md:rounded-3xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 hover:-translate-y-1 active:translate-y-0 transition-all flex justify-center items-center gap-3 mb-6 sm:mb-8 md:mb-10">
-                            <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                            Cari Data
-                        </button>
-
-                        <div id="history-section" class="text-left fade-in">
-                            <p class="text-xs sm:text-sm md:text-base font-bold text-gray-400 dark:text-gray-500 tracking-widest mb-3 uppercase">Riwayat Pencarian Terakhir:</p>
-                            <div id="history-container" class="w-full"></div>
-                        </div>
-                    </div>
-
+                <div class="text-left mb-3 pr-20">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-[#1a265a] dark:text-white mb-1 tracking-tight">QUALITY PASSED</h2>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-medium leading-relaxed">
+                        Masukkan kode MID untuk mengakses detail spesifikasi dan standar mutu.
+                    </p>
                 </div>
 
-                <div id="right-panel" class="lg:col-span-7 w-full lg:border-l lg:border-gray-100 dark:lg:border-slate-800/80 lg:pl-10 xl:pl-16 flex flex-col justify-start">
-
-                    <div id="view-loading" class="hidden flex-col items-center justify-center py-16 md:py-24 fade-in lg:pt-12">
-                        <div class="w-12 h-12 md:w-16 md:h-16 border-4 md:border-8 border-blue-100 dark:border-slate-700 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin mb-4 md:mb-6"></div>
-                        <p class="text-blue-600 dark:text-blue-400 font-semibold animate-pulse text-sm md:text-lg">Memuat Data MID...</p>
+                <div class="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl p-3.5 shadow-sm text-left mb-4">
+                    <div class="flex items-center gap-2 mb-1 text-amber-800 dark:text-amber-400 font-bold text-xs tracking-wider uppercase">
+                        <svg class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <span>Informasi Penting</span>
                     </div>
+                    <p class="text-xs text-amber-900/90 dark:text-amber-200/90 font-medium leading-relaxed mb-1.5">
+                        Notasi susunan dapat berubah sewaktu-waktu dan mungkin tidak sepenuhnya sesuai dengan kondisi aktual di lapangan.
+                    </p>
+                    <div class="pt-1.5 border-t border-amber-200/60 dark:border-amber-800/40 text-[11px] text-amber-800/80 dark:text-amber-300/80 leading-normal">
+                        <span class="font-semibold">Catatan:</span> Apabila terdapat perubahan notasi susunan yang belum diperbarui, harap segera menginformasikannya kepada tim operasional kami.
+                    </div>
+                </div>
 
-                    <div id="view-result" class="hidden flex-col w-full fade-in lg:pt-4">
+                <div class="w-full flex flex-col">
+                    <div class="relative mb-3">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                            </svg>
+                        </div>
                         
-                        <button id="btn-back-mobile" class="lg:hidden flex items-center gap-2 text-sm md:text-base font-bold text-blue-600 dark:text-blue-400 mb-6 bg-blue-50 dark:bg-blue-950/50 px-4 py-3 rounded-xl w-fit border border-blue-100 dark:border-blue-900/50">
-                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                            <span>Kembali ke Pencarian</span>
-                        </button>
+                        <input type="text" id="mid-input" 
+                            inputmode="numeric" 
+                            pattern="[0-9]*"
+                            class="w-full pl-11 pr-4 py-3 rounded-2xl border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all text-base placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-slate-800/80 shadow-sm"
+                            placeholder="Contoh: 80888" autocomplete="off">
 
-                        <div class="flex flex-row items-center justify-between mb-6 pb-4 md:pb-6 border-b border-gray-100 dark:border-slate-800">
-                            <div>
-                                <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium mb-1">Hasil Pemeriksaan MID:</p>
-                                <h2 id="res-mid" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1e3a8a] dark:text-blue-400 leading-none"></h2>
-                            </div>
-                            <span class="inline-flex items-center gap-2 px-4 md:px-5 py-2 md:py-3 rounded-xl bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-400 text-sm md:text-base font-bold border border-green-200 dark:border-green-800/60 shadow-sm">
-                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                <span class="hidden sm:inline">QUALITY PASSED</span>
-                                <span class="sm:hidden">PASSED</span>
-                            </span>
-                        </div>
-
-                        <div class="bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl md:rounded-3xl p-5 md:p-6 shadow-sm text-left mb-6">
-                            <div class="flex items-center gap-2 md:gap-3 mb-3 text-amber-800 dark:text-amber-400 font-bold text-sm md:text-base tracking-wider uppercase">
-                                <svg class="w-5 h-5 md:w-6 md:h-6 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                                </svg>
-                                <span>PENTING</span>
-                            </div>
-                            <ul class="space-y-2 md:space-y-3 text-sm md:text-base text-amber-900/90 dark:text-amber-200/90 font-medium leading-relaxed list-disc list-inside">
-                                <li>Pastikan <strong class="font-semibold text-amber-950 dark:text-amber-100">susunan pallet</strong> sudah sesuai dengan standar notasi di bawah.</li>
-                                <li>Lakukan <strong class="font-semibold text-amber-950 dark:text-amber-100">pemeriksaan varian produk</strong> secara teliti guna mengantisipasi adanya varian yang tercampur.</li>
-                                <li>Waspadai potensi <strong class="font-semibold text-amber-950 dark:text-amber-100">bocor pada palletan</strong> atau kerusakan fisik kardus.</li>
-                                <li>Periksa <strong class="font-semibold text-amber-950 dark:text-amber-100">format inkjet kardus</strong>; pastikan informasi tanggal, bulan, dan tahun tercetak dengan jelas dan akurat.</li>
-                                <li>Pastikan <strong class="font-semibold text-amber-950 dark:text-amber-100">slipsheet</strong> terpasang dengan benar sesuai standar operasional (tidak terbalik).</li>
-                            </ul>
-                        </div>
-
-                        <div id="res-container" class="space-y-6 md:space-y-8 w-full"></div>
+                        <div id="suggestions-box" class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden z-50 hidden max-h-60 overflow-y-auto hide-scrollbar"></div>
                     </div>
 
-                    <div id="view-error" class="hidden flex-col items-center justify-center py-16 md:py-24 text-center fade-in lg:pt-12">
-                        <button id="btn-back-error" class="lg:hidden flex items-center gap-2 text-sm md:text-base font-bold text-blue-600 dark:text-blue-400 mb-8 md:mb-10 bg-blue-50 dark:bg-blue-950/50 px-4 py-3 rounded-xl w-fit border border-blue-100 dark:border-blue-900/50">
-                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                            <span>Kembali ke Pencarian</span>
-                        </button>
+                    <button id="btn-search" class="w-full btn-gradient text-white font-bold text-base py-3 rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2 mb-4">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        Cari Data
+                    </button>
 
-                        <div class="w-16 h-16 md:w-24 md:h-24 bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 rounded-full flex items-center justify-center mb-4 md:mb-6">
-                            <svg class="w-8 h-8 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <h2 class="text-xl md:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2 md:mb-3">Data Tidak Ditemukan</h2>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm md:text-lg mb-6 md:mb-8">Kode MID <strong id="err-mid" class="text-gray-800 dark:text-gray-200"></strong> tidak terdaftar di dalam sistem.</p>
+                    <div id="history-section" class="text-left fade-in">
+                        <p class="text-[11px] font-bold text-gray-400 dark:text-gray-500 tracking-widest mb-2 uppercase">Riwayat Pencarian Terakhir:</p>
+                        <div id="history-container" class="w-full"></div>
                     </div>
-
                 </div>
 
             </div>
+
+            <div id="right-panel" class="lg:col-span-7 w-full lg:border-l lg:border-gray-100 dark:lg:border-slate-800/80 lg:pl-8 flex flex-col justify-start">
+
+                <div id="view-loading" class="hidden flex-col items-center justify-center py-12 fade-in lg:pt-8">
+                    <div class="w-10 h-10 border-4 border-blue-100 dark:border-slate-700 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin mb-3"></div>
+                    <p class="text-blue-600 dark:text-blue-400 font-semibold animate-pulse text-xs">Memuat Data MID...</p>
+                </div>
+
+                <div id="view-result" class="hidden flex-col w-full fade-in lg:pt-8">
+                    
+                    <button id="btn-back-mobile" class="lg:hidden flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 mb-4 bg-blue-50 dark:bg-blue-950/50 px-3 py-2 rounded-xl w-fit border border-blue-100 dark:border-blue-900/50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <span>Kembali ke Pencarian</span>
+                    </button>
+
+                    <div class="flex flex-row items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-slate-800">
+                        <div>
+                            <p class="text-[11px] text-gray-500 dark:text-gray-400 font-medium mb-0.5">Hasil Pemeriksaan MID:</p>
+                            <h2 id="res-mid" class="text-2xl sm:text-3xl font-black text-[#1e3a8a] dark:text-blue-400 leading-none"></h2>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-400 text-xs font-bold border border-green-200 dark:border-green-800/60 shadow-sm">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            QUALITY PASSED
+                        </span>
+                    </div>
+
+                    <div class="bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 shadow-sm text-left mb-4">
+                        <div class="flex items-center gap-2 mb-2 text-amber-800 dark:text-amber-400 font-bold text-xs tracking-wider uppercase">
+                            <svg class="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            <span>PENTING</span>
+                        </div>
+                        <ul class="space-y-1.5 text-xs text-amber-900/90 dark:text-amber-200/90 font-medium leading-relaxed list-disc list-inside">
+                            <li>Pastikan <strong class="font-semibold text-amber-950 dark:text-amber-100">susunan pallet</strong> sudah sesuai dengan standar notasi di bawah.</li>
+                            <li>Lakukan <strong class="font-semibold text-amber-950 dark:text-amber-100">pemeriksaan varian produk</strong> secara teliti guna mengantisipasi adanya varian yang tercampur.</li>
+                            <li>Waspadai potensi <strong class="font-semibold text-amber-950 dark:text-amber-100">bocor pada palletan</strong> atau kerusakan fisik kardus.</li>
+                            <li>Periksa <strong class="font-semibold text-amber-950 dark:text-amber-100">format inkjet kardus</strong>; pastikan informasi tanggal, bulan, dan tahun tercetak dengan jelas dan akurat.</li>
+                            <li>Pastikan <strong class="font-semibold text-amber-950 dark:text-amber-100">slipsheet</strong> terpasang dengan benar sesuai standar operasional (tidak terbalik).</li>
+                        </ul>
+                    </div>
+
+                    <div id="res-container" class="space-y-4 w-full"></div>
+                </div>
+
+                <div id="view-error" class="hidden flex-col items-center justify-center py-10 text-center fade-in lg:pt-8">
+                    <button id="btn-back-error" class="lg:hidden flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 mb-6 bg-blue-50 dark:bg-blue-950/50 px-3 py-2 rounded-xl w-fit border border-blue-100 dark:border-blue-900/50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <span>Kembali ke Pencarian</span>
+                    </button>
+
+                    <div class="w-14 h-14 bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 rounded-full flex items-center justify-center mb-3">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <h2 class="text-base font-bold text-gray-800 dark:text-gray-200 mb-1">Data Tidak Ditemukan</h2>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs mb-4">Kode MID <strong id="err-mid" class="text-gray-800 dark:text-gray-200"></strong> tidak terdaftar di dalam sistem.</p>
+                </div>
+
+            </div>
+
         </div>
 
     </div>
 
-    <!-- Modal Layout untuk Pembesaran Gambar -->
-    <div id="image-modal" class="fixed inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 bg-slate-950/80 backdrop-blur-[6px] p-4 sm:p-6 md:p-8">
-        <div id="modal-frame" class="relative glass-modal bg-white/20 dark:bg-slate-900/40 border border-white/40 dark:border-slate-700/50 rounded-[2rem] p-4 sm:p-6 md:p-8 transform scale-95 transition-transform duration-300 max-w-full max-h-full flex justify-center items-center">
-            <button id="btn-close-modal" class="absolute -top-3 -right-3 sm:-top-5 sm:-right-5 bg-white dark:bg-slate-800 text-gray-800 dark:text-white hover:text-red-500 dark:hover:text-red-400 shadow-xl rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center font-bold text-lg md:text-xl z-10 transition-all border border-gray-100 dark:border-slate-700 hover:scale-110 active:scale-95">
+    <div id="image-modal" class="fixed inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 bg-slate-950/70 backdrop-blur-[4px] p-4">
+        <div id="modal-frame" class="relative glass-modal bg-white/20 dark:bg-slate-900/40 border border-white/40 dark:border-slate-700/50 rounded-[2rem] p-3 sm:p-4 transform scale-95 transition-transform duration-300 max-w-full max-h-full flex justify-center items-center">
+            <button id="btn-close-modal" class="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white dark:bg-slate-800 text-gray-800 dark:text-white hover:text-red-500 dark:hover:text-red-400 shadow-xl rounded-full w-9 h-9 flex items-center justify-center font-bold text-base z-10 transition-all border border-gray-100 dark:border-slate-700 hover:scale-110 active:scale-95">
                 ✕
             </button>
             <img id="modal-img" src="" alt="Preview Full" class="max-w-full max-h-[85vh] rounded-[1.5rem] object-contain bg-white dark:bg-slate-900 shadow-inner">
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-slate-100 text-white dark:text-gray-900 text-sm md:text-base font-semibold px-6 md:px-8 py-3 md:py-4 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-[110] whitespace-nowrap">
+    <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-slate-100 text-white dark:text-gray-900 text-xs font-semibold px-5 py-2.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-[110] whitespace-nowrap">
         Silakan masukkan kode MID terlebih dahulu!
     </div>
 
@@ -295,11 +294,11 @@
                 darkIcon: document.getElementById('theme-toggle-dark-icon')
             };
 
-            // Tema Gelap / Terang diubah agar default murni adalah Light
+            // Tema Gelap / Terang
             function initTheme() {
                 const userTheme = localStorage.getItem('appTheme');
-                // Mengabaikan OS theme preference, memaksa light theme secara default jika tidak ada preferensi di localStorage
-                setDarkMode(userTheme === 'dark');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                setDarkMode(userTheme === 'dark' || (!userTheme && systemPrefersDark));
             }
 
             function setDarkMode(isDark) {
@@ -363,14 +362,14 @@
                 matches.forEach(item => {
                     const btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = 'w-full text-left px-5 py-3 md:py-4 hover:bg-gray-50 dark:hover:bg-slate-700/60 flex items-center gap-3 md:gap-4 transition-colors border-b last:border-b-0 border-gray-100 dark:border-slate-700/50';
+                    btn.className = 'w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5 transition-colors border-b last:border-b-0 border-gray-100 dark:border-slate-700/50';
                     btn.innerHTML = `
-                        <svg class="w-5 h-5 md:w-6 md:h-6 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <div class="truncate text-sm sm:text-base md:text-lg">
+                        <div class="truncate text-xs sm:text-sm">
                             <span class="font-bold text-blue-600 dark:text-blue-400">${item.mid}</span>
-                            <span class="text-gray-500 dark:text-gray-400 ml-1.5 font-normal truncate">- ${item.deskripsi || ''}</span>
+                            <span class="text-gray-500 dark:text-gray-400 ml-1 font-normal truncate">- ${item.deskripsi || ''}</span>
                         </div>
                     `;
                     btn.onclick = () => {
@@ -572,34 +571,34 @@
                     const hasTdk = item.tdk && String(item.tdk).trim() !== '' && String(item.tdk).trim() !== '-';
                     
                     const tdkHtml = hasTdk ? `
-                        <div class="bg-gray-50 dark:bg-slate-800/60 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
-                            <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 block">No. TDK</span>
-                            <span class="text-gray-700 dark:text-gray-300 font-semibold text-sm sm:text-base md:text-lg">${item.tdk}</span>
+                        <div class="bg-gray-50 dark:bg-slate-800/60 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
+                            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 block">No. TDK</span>
+                            <span class="text-gray-700 dark:text-gray-300 font-semibold text-xs sm:text-sm">${item.tdk}</span>
                         </div>
                     ` : '';
 
                     const cardHtml = `
-                        <div class="bg-white dark:bg-slate-800/90 border border-gray-100 dark:border-slate-700/60 rounded-2xl md:rounded-3xl shadow-sm overflow-hidden flex flex-col">
-                            <div class="w-full min-h-[220px] sm:min-h-[280px] md:min-h-[350px] bg-gray-50 dark:bg-slate-900/60 relative border-b border-gray-100 dark:border-slate-800 flex items-center justify-center p-4">
+                        <div class="bg-white dark:bg-slate-800/90 border border-gray-100 dark:border-slate-700/60 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                            <div class="w-full min-h-[180px] max-h-[250px] bg-gray-50 dark:bg-slate-900/60 relative border-b border-gray-100 dark:border-slate-800 flex items-center justify-center p-3">
                                 <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-white/30 dark:bg-slate-900/50 backdrop-blur-[2px] z-20 pointer-events-none rounded-t-2xl">
-                                    <span class="bg-black/75 dark:bg-white/80 text-white dark:text-gray-900 text-sm md:text-base font-bold px-4 py-2 rounded-xl shadow-lg">🔍 Perbesar Gambar</span>
+                                    <span class="bg-black/75 dark:bg-white/80 text-white dark:text-gray-900 text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg">🔍 Perbesar Gambar</span>
                                 </div>
                                 <img src="${imgSrc}" alt="${item.deskripsi || 'Gambar'}" 
-                                     class="max-w-full max-h-[260px] sm:max-h-[320px] md:max-h-[400px] object-contain z-10 relative rounded-lg cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+                                     class="max-w-full max-h-[220px] object-contain z-10 relative rounded-lg cursor-pointer hover:scale-[1.02] transition-transform duration-300"
                                      onerror="this.onerror=null; this.src='${fallbackImg}';">
                             </div>
                             
-                            <div class="p-5 md:p-6 lg:p-8 flex flex-col justify-center space-y-4 md:space-y-5">
-                                <div class="bg-blue-50/60 dark:bg-blue-950/30 p-4 rounded-xl border border-blue-100/50 dark:border-blue-900/40">
-                                    <span class="text-xs font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-1 block">Deskripsi / Nama Produk</span>
-                                    <span class="text-gray-800 dark:text-gray-100 font-bold text-base sm:text-lg md:text-xl">${item.deskripsi || '-'}</span>
+                            <div class="p-3.5 sm:p-4 flex flex-col justify-center space-y-2.5">
+                                <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-100/50 dark:border-blue-900/40">
+                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-0.5 block">Deskripsi / Nama Produk</span>
+                                    <span class="text-gray-800 dark:text-gray-100 font-bold text-sm sm:text-base">${item.deskripsi || '-'}</span>
                                 </div>
                                 
                                 ${tdkHtml}
 
-                                <div class="bg-gray-50 dark:bg-slate-800/60 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
-                                    <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1 block">Notasi / Keterangan Susunan</span>
-                                    <span class="text-gray-600 dark:text-gray-300 font-medium text-sm sm:text-base md:text-lg leading-relaxed">${item.notasi || '-'}</span>
+                                <div class="bg-gray-50 dark:bg-slate-800/60 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
+                                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 block">Notasi / Keterangan Susunan</span>
+                                    <span class="text-gray-600 dark:text-gray-300 font-medium text-xs sm:text-sm leading-relaxed">${item.notasi || '-'}</span>
                                 </div>
                             </div>
                         </div>
@@ -626,21 +625,21 @@
                 el.historyContainer.innerHTML = '';
 
                 if (!Array.isArray(historyData) || historyData.length === 0) {
-                    el.historyContainer.innerHTML = '<span class="text-sm md:text-base text-gray-400 dark:text-gray-500">Belum ada riwayat tersimpan</span>';
+                    el.historyContainer.innerHTML = '<span class="text-xs text-gray-400 dark:text-gray-500">Belum ada riwayat tersimpan</span>';
                     return;
                 }
 
-                el.historyContainer.className = 'flex flex-col gap-2 max-h-[350px] overflow-y-auto pr-2 hide-scrollbar w-full';
+                el.historyContainer.className = 'flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-1 hide-scrollbar w-full';
                 
                 historyData.forEach(item => {
                     const mid = typeof item === 'object' ? item.mid : item;
                     const desc = typeof item === 'object' ? item.deskripsi : '';
                     
                     const btn = document.createElement('button');
-                    btn.className = 'w-full text-left bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium px-4 py-3 md:py-4 rounded-xl text-sm md:text-base transition-all shadow-sm border border-gray-200/70 dark:border-slate-700/80 hover:border-blue-300 dark:hover:border-blue-600 flex justify-between items-center';
+                    btn.className = 'w-full text-left bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-medium px-3 py-2 rounded-xl text-xs transition-all shadow-sm border border-gray-200/70 dark:border-slate-700/80 hover:border-blue-300 dark:hover:border-blue-600 flex justify-between items-center';
                     
                     const labelText = (desc && desc !== '-') ? `${mid} - ${desc}` : mid;
-                    btn.innerHTML = `<span class="truncate font-semibold">${labelText}</span><svg class="w-4 h-4 md:w-5 md:h-5 text-gray-400 shrink-0 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+                    btn.innerHTML = `<span class="truncate font-semibold">${labelText}</span><svg class="w-3.5 h-3.5 text-gray-400 shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
                     
                     btn.onclick = () => {
                         el.input.value = mid;
