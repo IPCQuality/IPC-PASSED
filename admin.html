@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editor Quality</title>
+  <title>Editor Quality - Panel Admin</title>
+  <link rel="manifest" href="/pwa/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/pwa/favicon.svg">
+  <link rel="alternate icon" type="image/png" sizes="32x32" href="/pwa/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/pwa/apple-touch-icon.png">
+  <meta name="theme-color" content="#1e3a8a">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -691,8 +696,57 @@
         await this.queue.enqueue(async () => {
           try {
             await this.transaction.executeAtomicCommit(this.items);
-            GithubLogger.log("SaveChanges", "Tersimpan", "success");
-            LocalNotification.show("Perubahan berhasil disimpan!");
+            GithubLogger.log("SaveChanges", "Tersimpan di GitHub", "success");
+
+            // SINKRONISASI CACHE & BROADCAST KE SELURUH TAB / PERANGKAT
+            const updateTimestamp = Date.now();
+
+            // 1. Bersihkan cache lokal browser saat ini
+            if ('caches' in window) {
+              try {
+                const keys = await caches.keys();
+                for (const key of keys) {
+                  const c = await caches.open(key);
+                  await c.delete('./deskripsi.json');
+                  await c.delete('/deskripsi.json');
+                  const allReqs = await c.keys();
+                  for (const req of allReqs) {
+                    if (req.url.includes('deskripsi.json')) await c.delete(req);
+                  }
+                }
+              } catch (cacheErr) {
+                console.warn('Gagal membersihkan cache lokal admin:', cacheErr);
+              }
+            }
+
+            // 2. Beri tahu Service Worker untuk membuang cache deskripsi.json
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.controller.postMessage({ action: 'invalidateDataCache' });
+            }
+
+            // 3. Simpan flag pembaruan di localStorage (memicu storage event di tab index.html lain)
+            try {
+              localStorage.setItem('ipc_last_data_update', JSON.stringify({
+                timestamp: updateTimestamp,
+                itemsCount: this.items.length,
+                source: 'admin'
+              }));
+            } catch (storageErr) {}
+
+            // 4. Kirim sinyal broadcast real-time ke semua tab terbuka via BroadcastChannel
+            try {
+              if ('BroadcastChannel' in window) {
+                const syncChannel = new BroadcastChannel('ipc_passed_sync');
+                syncChannel.postMessage({
+                  type: 'DATA_UPDATED',
+                  timestamp: updateTimestamp,
+                  itemsCount: this.items.length
+                });
+                syncChannel.close();
+              }
+            } catch (bcErr) {}
+
+            LocalNotification.show("Perubahan berhasil disimpan & sinyal update terkirim ke semua tab!");
             await this.loadAllData(); // Refresh data dan daftar gambar aktual
           } catch (error) {
             GithubLogger.log("SaveChanges", error.message, "error");

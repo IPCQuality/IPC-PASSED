@@ -1,0 +1,6 @@
+{
+  "name": "IPC-PASSED",
+  "description": "Sistem Informasi & Panduan Visual Standar Susunan Pallet (IPC Quality)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

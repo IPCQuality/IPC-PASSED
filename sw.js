@@ -1,14 +1,19 @@
-// Nama cache internal
-const CACHE_NAME = 'ipc-passed-cache-v1.3';
+// Nama cache internal - perbarui versi untuk memicu update service worker
+const CACHE_NAME = 'ipc-passed-cache-v2.1';
 
-// File dasar yang langsung di-pre-cache saat SW terinstall
+// File statis inti yang di-pre-cache saat SW terinstall (tanpa deskripsi.json agar data selalu dinamis)
 const PRECACHE_ASSETS = [
   './',
   './index.html',
-  './deskripsi.json'
+  './pwa/manifest.json',
+  './pwa/favicon.svg',
+  './pwa/icon-192x192.png',
+  './pwa/icon-512x512.png',
+  './pwa/icon-maskable-192x192.png',
+  './pwa/apple-touch-icon.png'
 ];
 
-// 1. Event Install: Simpan aset utama ke cache
+// 1. Event Install: Simpan aset statis utama dan lewati masa tunggu
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -17,13 +22,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// 2. Event Activate: Bersihkan cache lama jika ada update versi
+// 2. Event Activate: Bersihkan cache lama dan klaim kendali klien
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
+            console.log('[SW] Menghapus cache usang:', cache);
             return caches.delete(cache);
           }
         })
@@ -32,37 +38,85 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. Event Fetch: Cek Cache terlebih dahulu (Cache-First Strategy untuk Gambar & Asset)
+// 3. Listener pesan dari aplikasi (skipWaiting & invalidasi manual)
+self.addEventListener('message', async (event) => {
+  if (!event.data) return;
+  if (event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
+  if (event.data.action === 'invalidateDataCache') {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.delete('./deskripsi.json');
+    const keys = await cache.keys();
+    for (const key of keys) {
+      if (key.url.includes('deskripsi.json')) {
+        await cache.delete(key);
+      }
+    }
+    console.log('[SW] Cache deskripsi.json berhasil di-invalidasi');
+  }
+});
+
+// 4. Event Fetch:
+// - Network-First untuk data deskripsi.json (utamakan data terbaru dari GitHub/server, fallback cache bila offline)
+// - Cache-First untuk gambar & aset statis pwa
 self.addEventListener('fetch', (event) => {
   const request = event.request;
+  const url = request.url;
 
-  // Tangani request gambar atau file json
+  // STRATEGI A: NETWORK-FIRST untuk data MID (deskripsi.json)
+  if (url.includes('deskripsi.json')) {
+    event.respondWith(
+      fetch(request, { cache: 'no-cache' })
+        .then(async (networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const cache = await caches.open(CACHE_NAME);
+            // Simpan salinan terbaru untuk kebutuhan offline
+            cache.put(request, networkResponse.clone());
+            cache.put('./deskripsi.json', networkResponse.clone());
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          // Jaringan gagal (misal koneksi gudang mati): ambil data terakhir yang tersimpan di cache
+          const cache = await caches.open(CACHE_NAME);
+          const cached = await cache.match(request) || await cache.match('./deskripsi.json');
+          if (cached) {
+            return cached;
+          }
+          return new Response(JSON.stringify({ records: [] }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        })
+    );
+    return;
+  }
+
+  // STRATEGI B: CACHE-FIRST untuk gambar & ikon statis
   if (
     request.destination === 'image' || 
-    request.url.includes('/images/') || 
-    request.url.includes('deskripsi.json')
+    url.includes('/images/') || 
+    url.includes('/pwa/')
   ) {
     event.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
-        // Cek apakah gambar sudah ada di penyimpanan internal (Cache)
         const cachedResponse = await cache.match(request);
         if (cachedResponse) {
-          return cachedResponse; // Kembalikan langsung dari cache internal (super cepat)
+          return cachedResponse;
         }
 
-        // Jika belum ada di cache, unduh dari jaringan
         try {
           const networkResponse = await fetch(request);
           if (networkResponse && networkResponse.status === 200) {
-            // Simpan salinannya ke cache untuk penggunaan berikutnya
             cache.put(request, networkResponse.clone());
           }
           return networkResponse;
         } catch (error) {
-          // Jika offline dan tidak ada di cache
           return new Response('Aset tidak tersedia secara offline', { status: 404 });
         }
       })
     );
+    return;
   }
 });

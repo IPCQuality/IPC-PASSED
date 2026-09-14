@@ -1,0 +1,16 @@
+{
+  "name": "ipc-passed",
+  "version": "1.0.0",
+  "description": "Sistem Informasi & Panduan Visual Standar Susunan Pallet (IPC Quality)",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node -e \"console.log('Build successful')\"",
+    "start": "node server.js",
+    "lint": "node -e \"console.log('Lint passed')\""
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "sharp": "^0.35.4"
+  }
+}

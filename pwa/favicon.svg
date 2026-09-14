@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af"/>
+      <stop offset="60%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="box-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="box-side1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="box-side2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+    <filter id="badge-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#10b981" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base with smooth rounded corner -->
+  <rect width="512" height="512" rx="108" fill="url(#bg-grad)"/>
+
+  <!-- Blueprint grid lines -->
+  <path d="M64 128 H448 M64 256 H448 M64 384 H448 M128 64 V448 M256 64 V448 M384 64 V448" stroke="#3b82f6" stroke-width="1.5" stroke-opacity="0.18"/>
+
+  <g filter="url(#shadow)">
+    <!-- Pallet base -->
+    <path d="M120 376 L256 422 L392 376 L256 332 Z" fill="#94a3b8"/>
+    <!-- Pallet blocks -->
+    <path d="M120 376 L120 398 L256 444 L256 422 Z" fill="#64748b"/>
+    <path d="M256 422 L256 444 L392 398 L392 376 Z" fill="#475569"/>
+
+    <!-- Left Box -->
+    <path d="M146 258 L220 286 L180 302 L106 274 Z" fill="url(#box-top)"/>
+    <path d="M106 274 L180 302 L180 354 L106 326 Z" fill="url(#box-side1)"/>
+    <path d="M180 302 L220 286 L220 338 L180 354 Z" fill="url(#box-side2)"/>
+
+    <!-- Right Box -->
+    <path d="M332 258 L406 274 L332 302 L258 286 Z" fill="url(#box-top)"/>
+    <path d="M258 286 L332 302 L332 354 L258 338 Z" fill="url(#box-side1)"/>
+    <path d="M332 302 L406 274 L406 326 L332 354 Z" fill="url(#box-side2)"/>
+
+    <!-- Top Center Box -->
+    <path d="M256 160 L324 186 L256 212 L188 186 Z" fill="url(#box-top)"/>
+    <path d="M188 186 L256 212 L256 266 L188 240 Z" fill="url(#box-side1)"/>
+    <path d="M256 212 L324 186 L324 240 L256 266 Z" fill="url(#box-side2)"/>
+    <!-- Box Seam tape -->
+    <path d="M218 173 L286 199" stroke="#fef08a" stroke-width="4" stroke-opacity="0.8"/>
+  </g>
+
+  <!-- Quality Passed Shield Badge -->
+  <g filter="url(#badge-glow)">
+    <!-- Outer Shield Rim -->
+    <path d="M256 90 C310 90 350 100 350 100 C350 170 340 240 256 280 C172 240 162 170 162 100 C162 100 202 90 256 90 Z" fill="#ffffff" opacity="0.95"/>
+    <!-- Inner Shield -->
+    <path d="M256 98 C302 98 338 107 338 107 C338 168 329 230 256 266 C183 230 174 168 174 107 C174 107 210 98 256 98 Z" fill="url(#shield-grad)"/>
+    
+    <!-- Bold Quality Checkmark -->
+    <path d="M218 166 L244 192 L296 138" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <circle cx="210" cy="126" r="3.5" fill="#ffffff" opacity="0.8"/>
+    <circle cx="302" cy="126" r="3.5" fill="#ffffff" opacity="0.8"/>
+  </g>
+
+  <!-- Banner: QUALITY PASSED -->
+  <g filter="url(#shadow)">
+    <rect x="86" y="388" width="340" height="54" rx="27" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+    <rect x="90" y="392" width="332" height="46" rx="23" fill="#1e293b"/>
+    <text x="256" y="422" text-anchor="middle" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="20" letter-spacing="3">QUALITY PASSED</text>
+  </g>
+
+  <!-- IPC QC Accent Tag -->
+  <rect x="206" y="44" width="100" height="28" rx="14" fill="#3b82f6"/>
+  <text x="256" y="63" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="13" letter-spacing="2">IPC QC</text>
+</svg>
