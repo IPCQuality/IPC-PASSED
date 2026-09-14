@@ -15,7 +15,7 @@ app.use(express.static(__dirname, {
 
 // Direct manifest route fallback
 app.get('/manifest.json', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pwa', 'manifest.json'));
+  res.sendFile(path.join(__dirname, 'manifest.json'));
 });
 
 // Route for admin

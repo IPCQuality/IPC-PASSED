@@ -1,15 +1,19 @@
 // Nama cache internal - perbarui versi untuk memicu update service worker
-const CACHE_NAME = 'ipc-passed-cache-v2.1';
+const CACHE_NAME = 'ipc-passed-cache-v2.2';
 
 // File statis inti yang di-pre-cache saat SW terinstall (tanpa deskripsi.json agar data selalu dinamis)
 const PRECACHE_ASSETS = [
   './',
   './index.html',
+  './manifest.json',
   './pwa/manifest.json',
   './pwa/favicon.svg',
+  './pwa/favicon-32x32.png',
+  './pwa/favicon-16x16.png',
   './pwa/icon-192x192.png',
   './pwa/icon-512x512.png',
   './pwa/icon-maskable-192x192.png',
+  './pwa/icon-maskable-512x512.png',
   './pwa/apple-touch-icon.png'
 ];
 
@@ -58,27 +62,53 @@ self.addEventListener('message', async (event) => {
 });
 
 // 4. Event Fetch:
-// - Network-First untuk data deskripsi.json (utamakan data terbaru dari GitHub/server, fallback cache bila offline)
-// - Cache-First untuk gambar & aset statis pwa
+// - Network-First untuk navigasi halaman (PWA launch / index.html) dengan fallback cache offline
+// - Network-First untuk data deskripsi.json (utamakan data terbaru, fallback cache bila offline)
+// - Cache-First untuk gambar, ikon, manifest, dan aset statis
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = request.url;
 
-  // STRATEGI A: NETWORK-FIRST untuk data MID (deskripsi.json)
+  // STRATEGI A: NAVIGASI HALAMAN (PWA launch & link buka halaman)
+  // Menjamin PWA tidak 404 saat dibuka di Android / Desktop / iOS baik online maupun offline
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then(async (networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, networkResponse.clone());
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          const cache = await caches.open(CACHE_NAME);
+          const cached = await cache.match(request) || await cache.match('./index.html') || await cache.match('./');
+          if (cached) {
+            return cached;
+          }
+          return new Response('Aplikasi Quality Passed siap offline', {
+            status: 200,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
+        })
+    );
+    return;
+  }
+
+  // STRATEGI B: NETWORK-FIRST untuk data MID (deskripsi.json)
   if (url.includes('deskripsi.json')) {
     event.respondWith(
       fetch(request, { cache: 'no-cache' })
         .then(async (networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             const cache = await caches.open(CACHE_NAME);
-            // Simpan salinan terbaru untuk kebutuhan offline
             cache.put(request, networkResponse.clone());
             cache.put('./deskripsi.json', networkResponse.clone());
           }
           return networkResponse;
         })
         .catch(async () => {
-          // Jaringan gagal (misal koneksi gudang mati): ambil data terakhir yang tersimpan di cache
           const cache = await caches.open(CACHE_NAME);
           const cached = await cache.match(request) || await cache.match('./deskripsi.json');
           if (cached) {
@@ -93,11 +123,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // STRATEGI B: CACHE-FIRST untuk gambar & ikon statis
+  // STRATEGI C: CACHE-FIRST untuk gambar, ikon, dan manifest
   if (
     request.destination === 'image' || 
     url.includes('/images/') || 
-    url.includes('/pwa/')
+    url.includes('manifest.json') ||
+    url.match(/\.(png|jpg|jpeg|svg|webp|ico)$/i)
   ) {
     event.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {

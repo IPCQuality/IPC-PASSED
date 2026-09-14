@@ -1,10 +1,10 @@
 {
-  "id": "../index.html",
+  "id": "./index.html",
   "name": "QUALITY PASSED - IPC Quality",
   "short_name": "IPC Passed",
   "description": "Sistem Informasi & Panduan Visual Standar Susunan Pallet dan Mutu Kemasan",
-  "start_url": "../index.html",
-  "scope": "../",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#0f172a",
@@ -12,25 +12,25 @@
   "categories": ["utilities", "productivity", "business"],
   "icons": [
     {
-      "src": "./icon-192x192.png",
+      "src": "./pwa/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon-512x512.png",
+      "src": "./pwa/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon-maskable-192x192.png",
+      "src": "./pwa/icon-maskable-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "./icon-maskable-512x512.png",
+      "src": "./pwa/icon-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
