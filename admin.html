@@ -16,6 +16,7 @@
     }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="/formater.js"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -638,6 +639,8 @@
         this.transaction = null;
         this.pendingSyncData = null;
         this.remoteImages = new Set(); // Menyimpan nama gambar aktual yang ada di repo
+        this.availableFormats = []; // Daftar pilihan format dari data/format.json
+        this.formatsData = {}; // Menyimpan definisi format lengkap (primer & sekunder)
       }
 
       setLoadingUI(isBusy, title = "", desc = "") {
@@ -664,11 +667,41 @@
         this.setLoadingUI(true, "Mengunduh Data", "Mengambil data GitHub...");
 
         try {
-          // Tarik data file JSON
+          // Tarik data file JSON deskripsi
           const fileData = await this.repository.getFileContentUTF8(this.jsonPath);
           const parsed = JSON.parse(fileData.content);
           const rawRecords = parsed.records || [];
           this.items = rawRecords.map(r => this.normalizeItemStructure(r));
+
+          // Tarik daftar pilihan format dari data/format.json
+          try {
+            const formatFile = await this.repository.getFileContentUTF8("data/format.json");
+            const formatJson = JSON.parse(formatFile.content);
+            const formatList = Array.isArray(formatJson) ? formatJson : (formatJson.formats || []);
+            this.availableFormats = formatList.map(f => typeof f === 'string' ? f : f.format).filter(Boolean);
+            this.formatsData = {};
+            formatList.forEach(f => {
+              if (f && typeof f === 'object' && f.format) {
+                this.formatsData[f.format] = f;
+              }
+            });
+          } catch (fmtErr) {
+            // Fallback load lokal jika remote belum terkonfigurasi
+            try {
+              const localRes = await fetch(`./data/format.json?_t=${Date.now()}`);
+              if (localRes.ok) {
+                const localJson = await localRes.json();
+                const formatList = Array.isArray(localJson) ? localJson : (localJson.formats || []);
+                this.availableFormats = formatList.map(f => typeof f === 'string' ? f : f.format).filter(Boolean);
+                this.formatsData = {};
+                formatList.forEach(f => {
+                  if (f && typeof f === 'object' && f.format) {
+                    this.formatsData[f.format] = f;
+                  }
+                });
+              }
+            } catch (e) {}
+          }
           
           // Tarik daftar file aktual di folder images/
           const imageList = await this.repository.getRemoteImageNames(this.imageFolder);
@@ -780,7 +813,8 @@
       }
 
       addNewItem() {
-        this.items.unshift({ mid: "", deskripsi: "", notasi: "", tdk: "", img: "", oldImg: "", localImagePreview: null, newImageBase64: null });
+        const defaultFmt = (this.availableFormats && this.availableFormats[0]) || "lpouch1";
+        this.items.unshift({ mid: "", deskripsi: "", notasi: "", tdk: "", format: defaultFmt, img: "", oldImg: "", localImagePreview: null, newImageBase64: null });
         this.render();
       }
 
@@ -1056,6 +1090,42 @@
               ? `<div class="w-full h-full flex flex-col items-center justify-center p-1 text-center"><span class="text-[9px] leading-tight font-bold text-red-500 uppercase">Gambar<br>Hilang</span></div>`
               : `<div class="w-full h-full flex flex-col items-center justify-center p-2"><span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Kosong</span></div>`;
 
+          const currentFormat = String(item.format || "lpouch1").trim();
+          
+          // Deteksi cluster dari nama format vs teks deskripsi produk untuk validasi
+          const formatCluster = currentFormat.includes('pouch') ? 'pouch' :
+                               (currentFormat.includes('sachet') || currentFormat.includes('sct')) ? 'sachet' :
+                               (currentFormat.includes('botol') || currentFormat.includes('btl')) ? 'botol' : null;
+          const descUpper = String(item.deskripsi || '').toUpperCase();
+          const descCluster = (descUpper.includes('POUCH') || descUpper.includes('REFILL')) ? 'pouch' :
+                              (descUpper.includes('SACHET') || descUpper.includes('SCT')) ? 'sachet' :
+                              (descUpper.includes('BTL') || descUpper.includes('BOTTLE') || descUpper.includes('JRC')) ? 'botol' : null;
+          const isFormatMismatch = !!(formatCluster && descCluster && formatCluster !== descCluster);
+          const validationWarningHtml = isFormatMismatch ? `
+            <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl p-2 flex items-center gap-1.5 text-left">
+              <span class="text-amber-500 text-xs">⚠️</span>
+              <span class="text-[10px] font-semibold text-amber-700 dark:text-amber-300">Format (${formatCluster.toUpperCase()}) beda dengan deskripsi (${descCluster.toUpperCase()})</span>
+            </div>
+          ` : '';
+
+          // Siapkan opsi format yang tersedia
+          const defaultFormats = [
+            'lpouch1', 'lpouch2', 'lpouch3', 'xpouch1', 'xpouch2', 'xpouch3', 'xpouch4', 'xpouch5',
+            'lsachet1', 'lsachet2', 'lsachet3', 'lsachet4', 'lsachet5',
+            'xsachet1', 'xsachet2', 'xsachet3', 'xsachet4', 'xsachet5', 'xsachet6', 'xsachet7', 'xsachet8',
+            'lbotol1', 'lbotol2', 'lbotol3', 'lbotol5',
+            'xbotol1', 'xbotol2', 'xbotol3', 'xbotol4',
+            'lpouchcpkb1', 'lbotolcpkb1', 'xbotolcpkb1', 'xbotolcpkb2'
+          ];
+          const formatOptionsSet = new Set([...this.availableFormats, ...defaultFormats]);
+          if (currentFormat) formatOptionsSet.add(currentFormat);
+          const formatOptionsList = Array.from(formatOptionsSet).sort();
+
+          const formatOptionsHtml = formatOptionsList.map(fmt => {
+            const isSelected = fmt === currentFormat ? 'selected' : '';
+            return `<option value="${fmt}" ${isSelected}>${fmt}</option>`;
+          }).join("");
+
           htmlBuffer.push(`
             <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col gap-3.5 transition-colors">
               <div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2.5">
@@ -1074,9 +1144,40 @@
                 </div>
               </div>
 
-              <div>
-                <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">Notasi</label>
-                <input type="text" value="${item.notasi || ''}" oninput="updateField(${idx}, 'notasi', this.value)" class="w-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">Notasi</label>
+                  <input type="text" value="${item.notasi || ''}" oninput="updateField(${idx}, 'notasi', this.value)" class="w-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+                    <span>Format</span>
+                    <button type="button" onclick="toggleFormatPreview(${idx})" class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1 transition">
+                      <span>👁️</span> Pratinjau
+                    </button>
+                  </label>
+                  <select onchange="updateField(${idx}, 'format', this.value); refreshCardPreview(${idx});" class="w-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-2.5 py-2 text-xs font-mono font-medium focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    ${formatOptionsHtml}
+                  </select>
+                </div>
+              </div>
+
+              ${validationWarningHtml}
+
+              <!-- Panel Pratinjau Format Coding Interaktif -->
+              <div id="preview-panel-${idx}" class="hidden bg-blue-50/70 dark:bg-blue-950/40 rounded-2xl p-3 border border-blue-200/70 dark:border-blue-900/50 space-y-2">
+                <div class="flex items-center justify-between text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wider">
+                  <span>Pratinjau Format (${currentFormat})</span>
+                  <span class="font-mono text-[9px] text-blue-500">Live (Shift 1)</span>
+                </div>
+                <div>
+                  <span class="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest block mb-0.5">Primer:</span>
+                  <div id="preview-primer-${idx}" class="w-full bg-white dark:bg-slate-900 p-2 rounded-lg border border-blue-100 dark:border-blue-900/40 font-mono text-[11px] font-bold text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words select-text shadow-sm">-</div>
+                </div>
+                <div>
+                  <span class="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest block mb-0.5">Sekunder:</span>
+                  <div id="preview-sekunder-${idx}" class="w-full bg-white dark:bg-slate-900 p-2 rounded-lg border border-blue-100 dark:border-blue-900/40 font-mono text-[11px] font-bold text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words select-text shadow-sm">-</div>
+                </div>
               </div>
 
               <div>
@@ -1213,6 +1314,51 @@
     function addNewCard() { adminApp.addNewItem(); }
     function updateField(index, field, value) { adminApp.updateItemField(index, field, value); }
     function deleteCard(index) { adminApp.removeItem(index); }
+    
+    function toggleFormatPreview(index) {
+      const panel = document.getElementById(`preview-panel-${index}`);
+      if (!panel) return;
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        refreshCardPreview(index);
+      } else {
+        panel.classList.add('hidden');
+      }
+    }
+
+    function refreshCardPreview(index) {
+      const item = adminApp.items[index];
+      if (!item) return;
+      const primerEl = document.getElementById(`preview-primer-${index}`);
+      const sekunderEl = document.getElementById(`preview-sekunder-${index}`);
+      if (!primerEl || !sekunderEl) return;
+
+      const formatKey = String(item.format || 'lpouch1').trim();
+      let formatDef = adminApp.formatsData ? adminApp.formatsData[formatKey] : null;
+
+      let primerText = '-';
+      let sekunderText = '-';
+
+      if (window.Formater && formatDef) {
+        const now = new Date();
+        const jam = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const opt = {
+          date: now,
+          shift: '1',
+          machine: { name: 'APK 26', line: 'LINE A' },
+          customTime: jam,
+          numLot: '1'
+        };
+        if (formatDef.primer) primerText = window.Formater.formatCode(formatDef.primer, { ...opt, isSekunder: false });
+        if (formatDef.sekunder) sekunderText = window.Formater.formatCode(formatDef.sekunder, { ...opt, isSekunder: true });
+      } else if (!formatDef) {
+        primerText = `[Format ${formatKey} belum terdefinisi di format.json]`;
+        sekunderText = '-';
+      }
+
+      primerEl.textContent = primerText ? String(primerText).split('\n').map(l => l.trim()).join('\n').trim() : '-';
+      sekunderEl.textContent = sekunderText ? String(sekunderText).split('\n').map(l => l.trim()).join('\n').trim() : '-';
+    }
     
     function groupImagesByNotation() {
       if (confirm("Lanjutkan sinkronisasi massal gambar?")) {

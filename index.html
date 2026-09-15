@@ -329,6 +329,14 @@
                     </select>
                 </div>
 
+                <!-- Warning Ketidakcocokan Cluster Mesin & Format Produk -->
+                <div id="modal-cluster-warning" class="hidden bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl p-2.5 flex items-start gap-2 text-left">
+                    <span class="text-amber-500 text-sm leading-none mt-0.5">⚠️</span>
+                    <p id="modal-cluster-warning-text" class="text-[11px] font-semibold text-amber-700 dark:text-amber-300 leading-snug">
+                        Perhatian: Mesin yang dipilih tidak sesuai dengan tipe kemasan produk ini.
+                    </p>
+                </div>
+
                 <div>
                     <label for="select-shift" class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Pilihan Shift</label>
                     <select id="select-shift" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all shadow-sm cursor-pointer">
@@ -570,6 +578,8 @@
                 modalSelectConfig: document.getElementById('modal-select-config'),
                 modalMidTitle: document.getElementById('modal-mid-title'),
                 modalMidDesc: document.getElementById('modal-mid-desc'),
+                modalClusterWarning: document.getElementById('modal-cluster-warning'),
+                modalClusterWarningText: document.getElementById('modal-cluster-warning-text'),
                 btnCloseConfigModal: document.getElementById('btn-close-config-modal'),
                 btnCancelConfigModal: document.getElementById('btn-cancel-config-modal'),
                 btnConfirmConfigModal: document.getElementById('btn-confirm-config-modal'),
@@ -991,7 +1001,14 @@
                 });
 
                 // Jika filter menghasilkan data mesin, tampilkan mesin terfilter; jika tidak ada, fallback tampilkan semua mesin
-                const listToRender = filteredMachines.length > 0 ? filteredMachines : machinesCache;
+                const listToRender = [...(filteredMachines.length > 0 ? filteredMachines : machinesCache)];
+
+                // Urutkan mesin dari yang terkecil ke terbesar (Natural Sort: AST 2, AST 3, ... AST 71, APK 9, APK 12, dst.)
+                listToRender.sort((a, b) => {
+                    const nameA = String(a.name || a.id || '').trim();
+                    const nameB = String(b.name || b.id || '').trim();
+                    return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+                });
 
                 listToRender.forEach(m => {
                     const machineName = m.name || m.id;
@@ -1023,6 +1040,35 @@
             let pendingSearchMid = null;
             let pendingSearchMatches = null;
 
+            function updateModalClusterWarning() {
+                if (!el.modalClusterWarning || !el.modalClusterWarningText) return;
+                const primaryItem = pendingSearchMatches && pendingSearchMatches[0] ? pendingSearchMatches[0] : {};
+                const formatKey = primaryItem.format || (
+                    (primaryItem.deskripsi && (primaryItem.deskripsi.includes('BTL') || primaryItem.deskripsi.includes('BOTTLE') || primaryItem.deskripsi.includes('JRC'))) ? 'botol1' :
+                    (primaryItem.deskripsi && primaryItem.deskripsi.includes('SO SOFT')) ? 'sosoft1' : 'lpouch1'
+                );
+                const prodCluster = getFormatCluster(formatKey, primaryItem.deskripsi);
+                const chosenMachineName = (el.selectMesin?.value || '').trim();
+
+                if (!chosenMachineName || !prodCluster) {
+                    el.modalClusterWarning.classList.add('hidden');
+                    return;
+                }
+
+                const machineObj = machinesCache.find(m => (m.name || m.id) === chosenMachineName);
+                const machCluster = machineObj?.cluster || (
+                    chosenMachineName.startsWith('AST') ? 'sachet' :
+                    chosenMachineName.startsWith('APK') ? 'pouch' : 'botol'
+                );
+
+                if (machCluster && prodCluster && machCluster !== prodCluster) {
+                    el.modalClusterWarningText.textContent = `Peringatan: Tipe kemasan produk ini (${prodCluster.toUpperCase()}) tidak sesuai dengan cluster mesin ${chosenMachineName} (${machCluster.toUpperCase()}).`;
+                    el.modalClusterWarning.classList.remove('hidden');
+                } else {
+                    el.modalClusterWarning.classList.add('hidden');
+                }
+            }
+
             function openConfigModal(mid, matches) {
                 pendingSearchMid = mid;
                 pendingSearchMatches = matches;
@@ -1040,6 +1086,9 @@
                 
                 // Isi dropdown mesin berdasarkan cluster kemasan
                 populateMachineDropdown(targetCluster);
+
+                // Periksa kecocokan cluster
+                updateModalClusterWarning();
 
                 // Sinkronkan shift otomatis bila belum dipilih manual
                 autoSyncShift();
@@ -1118,6 +1167,7 @@
             [el.selectMesin, el.selectShift].forEach(elem => {
                 if (elem) {
                     elem.addEventListener('change', () => {
+                        updateModalClusterWarning();
                         if (currentSearchMid && currentSearchMatches && currentState === 'result') {
                             renderResult(currentSearchMid, currentSearchMatches);
                         }
@@ -1292,12 +1342,31 @@
                     const cleanPrimer = primerText ? String(primerText).split('\n').map(l => l.trim()).join('\n').trim() : '-';
                     const cleanSekunder = sekunderText ? String(sekunderText).split('\n').map(l => l.trim()).join('\n').trim() : '-';
 
+                    // Validasi kecocokan cluster mesin vs produk
+                    const prodCluster = getFormatCluster(formatKey, item.deskripsi);
+                    const machCluster = selectedMachine ? (selectedMachine.cluster || (
+                        selectedMachine.name.startsWith('AST') ? 'sachet' :
+                        selectedMachine.name.startsWith('APK') ? 'pouch' : 'botol'
+                    )) : null;
+                    const isClusterMismatch = !!(selectedMachine && prodCluster && machCluster && prodCluster !== machCluster);
+
+                    const mismatchWarningHtml = isClusterMismatch ? `
+                        <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl p-2.5 flex items-start gap-2 text-left">
+                            <span class="text-amber-500 text-sm leading-none mt-0.5">⚠️</span>
+                            <div class="text-[11px] font-semibold text-amber-800 dark:text-amber-300 leading-snug">
+                                Peringatan: Tipe kemasan produk (${prodCluster.toUpperCase()}) tidak sesuai dengan cluster mesin ${selectedMachine.name} (${machCluster.toUpperCase()}).
+                            </div>
+                        </div>
+                    ` : '';
+
                     const formatHtml = `
                         <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100/50 dark:border-blue-900/40 space-y-2.5 text-left">
                             <div class="flex items-center justify-between">
                                 <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block text-left">Spesifikasi Format Printing (${formatKey})</span>
                                 ${selectedMachine ? `<span class="text-[10px] bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-bold px-2 py-0.5 rounded-md font-mono">${selectedMachine.name}</span>` : '<span class="text-[10px] bg-blue-100/70 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded-md">Default</span>'}
                             </div>
+
+                            ${mismatchWarningHtml}
 
                             <div class="space-y-2 text-left">
                                 <div class="text-left flex flex-col justify-start items-start">
