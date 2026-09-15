@@ -1289,26 +1289,25 @@
                         if (formatDef.sekunder) sekunderText = window.Formater.formatCode(formatDef.sekunder, { ...opt, isSekunder: true });
                     }
 
+                    const cleanPrimer = primerText ? String(primerText).split('\n').map(l => l.trim()).join('\n').trim() : '-';
+                    const cleanSekunder = sekunderText ? String(sekunderText).split('\n').map(l => l.trim()).join('\n').trim() : '-';
+
                     const formatHtml = `
                         <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100/50 dark:border-blue-900/40 space-y-2.5 text-left">
                             <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block">Spesifikasi Format Printing (${formatKey})</span>
+                                <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block text-left">Spesifikasi Format Printing (${formatKey})</span>
                                 ${selectedMachine ? `<span class="text-[10px] bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-bold px-2 py-0.5 rounded-md font-mono">${selectedMachine.name}</span>` : '<span class="text-[10px] bg-blue-100/70 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded-md">Default</span>'}
                             </div>
 
-                            <div class="space-y-2">
+                            <div class="space-y-2 text-left">
                                 <div class="text-left flex flex-col justify-start items-start">
-                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block mb-1">Format Primer (Emboss / Inkjet Kemasan)</span>
-                                    <div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-line tracking-wide shadow-sm">
-                                        ${primerText}
-                                    </div>
+                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block mb-1 text-left">Format Primer (Emboss / Inkjet Kemasan)</span>
+                                    <div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words text-left tracking-wide shadow-sm select-text">${cleanPrimer}</div>
                                 </div>
 
                                 <div class="text-left flex flex-col justify-start items-start">
-                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block mb-1">Format Sekunder (Inkjet Outer / Kardus)</span>
-                                    <div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-line tracking-wide shadow-sm">
-                                        ${sekunderText}
-                                    </div>
+                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block mb-1 text-left">Format Sekunder (Inkjet Outer / Kardus)</span>
+                                    <div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words text-left tracking-wide shadow-sm select-text">${cleanSekunder}</div>
                                 </div>
                             </div>
                         </div>
