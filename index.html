@@ -404,6 +404,25 @@
                 });
             }
 
+            // Modal Background Scroll-Lock Manager
+            const activeModals = new Set();
+            function lockBackgroundScroll(modalKey) {
+                activeModals.add(modalKey);
+                document.body.classList.add('overflow-hidden');
+                document.documentElement.classList.add('overflow-hidden');
+            }
+            function unlockBackgroundScroll(modalKey) {
+                if (modalKey) {
+                    activeModals.delete(modalKey);
+                } else {
+                    activeModals.clear();
+                }
+                if (activeModals.size === 0) {
+                    document.body.classList.remove('overflow-hidden');
+                    document.documentElement.classList.remove('overflow-hidden');
+                }
+            }
+
             // PWA Install Prompt Handler & Guide Modal
             let deferredPrompt = null;
             const pwaInstallBtn = document.getElementById('pwa-install-btn');
@@ -413,6 +432,7 @@
 
             function openPwaGuide() {
                 if (pwaGuideModal) {
+                    lockBackgroundScroll('pwa');
                     pwaGuideModal.classList.remove('opacity-0', 'pointer-events-none');
                     const modalFrame = pwaGuideModal.querySelector('div');
                     if (modalFrame) {
@@ -424,6 +444,7 @@
 
             function closePwaGuide() {
                 if (pwaGuideModal) {
+                    unlockBackgroundScroll('pwa');
                     pwaGuideModal.classList.add('opacity-0', 'pointer-events-none');
                     const modalFrame = pwaGuideModal.querySelector('div');
                     if (modalFrame) {
@@ -846,6 +867,7 @@
             }
 
             function openModal(src) {
+                lockBackgroundScroll('image');
                 el.modalImg.src = src;
                 el.modal.classList.remove('opacity-0', 'pointer-events-none');
                 el.modalFrame.classList.remove('scale-95');
@@ -853,6 +875,7 @@
             }
 
             function closeModal() {
+                unlockBackgroundScroll('image');
                 el.modal.classList.add('opacity-0', 'pointer-events-none');
                 el.modalFrame.classList.remove('scale-100');
                 el.modalFrame.classList.add('scale-95');
@@ -860,6 +883,7 @@
             }
 
             function resetView() {
+                unlockBackgroundScroll();
                 el.input.value = '';
                 el.suggestionsBox.classList.add('hidden');
                 showState('placeholder');
@@ -1021,12 +1045,14 @@
                 autoSyncShift();
 
                 if (el.modalSelectConfig) {
+                    lockBackgroundScroll('config');
                     el.modalSelectConfig.classList.remove('hidden');
                 }
             }
 
             function closeConfigModal() {
                 if (el.modalSelectConfig) {
+                    unlockBackgroundScroll('config');
                     el.modalSelectConfig.classList.add('hidden');
                 }
             }
@@ -1046,20 +1072,39 @@
             if (el.btnCancelConfigModal) {
                 el.btnCancelConfigModal.addEventListener('click', () => {
                     closeConfigModal();
-                    if (currentState === 'loading') {
-                        showState('initial');
-                    }
+                    resetView();
                 });
             }
 
             if (el.btnCloseConfigModal) {
                 el.btnCloseConfigModal.addEventListener('click', () => {
                     closeConfigModal();
-                    if (currentState === 'loading') {
-                        showState('initial');
+                    resetView();
+                });
+            }
+
+            if (el.modalSelectConfig) {
+                el.modalSelectConfig.addEventListener('click', (e) => {
+                    if (e.target === el.modalSelectConfig) {
+                        closeConfigModal();
+                        resetView();
                     }
                 });
             }
+
+            // Keyboard Escape listener untuk menutup pop up dan kembali ke pencarian utama
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (el.modalSelectConfig && !el.modalSelectConfig.classList.contains('hidden')) {
+                        closeConfigModal();
+                        resetView();
+                    } else if (el.modal && !el.modal.classList.contains('opacity-0')) {
+                        closeModal();
+                    } else if (pwaGuideModal && !pwaGuideModal.classList.contains('opacity-0')) {
+                        closePwaGuide();
+                    }
+                }
+            });
 
             if (el.btnChangeConfig) {
                 el.btnChangeConfig.addEventListener('click', () => {
@@ -1210,7 +1255,7 @@
                     const hasTdk = item.tdk && String(item.tdk).trim() !== '' && String(item.tdk).trim() !== '-';
                     
                     const tdkHtml = hasTdk ? `
-                        <div class="bg-gray-50 dark:bg-slate-800/60 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
+                        <div class="bg-gray-50 dark:bg-slate-800/60 p-3 rounded-xl border border-gray-100 dark:border-slate-800 text-left">
                             <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 block">No. TDK</span>
                             <span class="text-gray-700 dark:text-gray-300 font-semibold text-xs sm:text-sm">${item.tdk}</span>
                         </div>
@@ -1245,23 +1290,23 @@
                     }
 
                     const formatHtml = `
-                        <div class="bg-indigo-50/70 dark:bg-indigo-950/40 p-3.5 rounded-xl border border-indigo-100 dark:border-indigo-900/50 space-y-2.5">
+                        <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100/50 dark:border-blue-900/40 space-y-2.5 text-left">
                             <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest block">Spesifikasi Format Printing (${formatKey})</span>
-                                ${selectedMachine ? `<span class="text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-md font-mono">${selectedMachine.name}</span>` : '<span class="text-[10px] bg-gray-100 dark:bg-slate-800 text-gray-500 font-bold px-2 py-0.5 rounded-md">Default</span>'}
+                                <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block">Spesifikasi Format Printing (${formatKey})</span>
+                                ${selectedMachine ? `<span class="text-[10px] bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-bold px-2 py-0.5 rounded-md font-mono">${selectedMachine.name}</span>` : '<span class="text-[10px] bg-blue-100/70 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded-md">Default</span>'}
                             </div>
 
                             <div class="space-y-2">
-                                <div>
-                                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest block mb-1">Format Primer (Emboss / Inkjet Kemasan)</span>
-                                    <div class="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-indigo-200/60 dark:border-indigo-800/60 font-mono text-xs sm:text-sm font-bold text-indigo-950 dark:text-indigo-200 whitespace-pre-line tracking-wide shadow-sm">
+                                <div class="text-left flex flex-col justify-start items-start">
+                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block mb-1">Format Primer (Emboss / Inkjet Kemasan)</span>
+                                    <div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-line tracking-wide shadow-sm">
                                         ${primerText}
                                     </div>
                                 </div>
 
-                                <div>
-                                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest block mb-1">Format Sekunder (Inkjet Outer / Kardus)</span>
-                                    <div class="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-indigo-200/60 dark:border-indigo-800/60 font-mono text-xs sm:text-sm font-bold text-indigo-950 dark:text-indigo-200 whitespace-pre-line tracking-wide shadow-sm">
+                                <div class="text-left flex flex-col justify-start items-start">
+                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block mb-1">Format Sekunder (Inkjet Outer / Kardus)</span>
+                                    <div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-line tracking-wide shadow-sm">
                                         ${sekunderText}
                                     </div>
                                 </div>
@@ -1270,7 +1315,7 @@
                     `;
 
                     const cardHtml = `
-                        <div class="bg-white dark:bg-slate-800/90 border border-gray-100 dark:border-slate-700/60 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                        <div class="bg-white dark:bg-slate-800/90 border border-gray-100 dark:border-slate-700/60 rounded-2xl shadow-sm overflow-hidden flex flex-col justify-start">
                             <div class="w-full min-h-[180px] max-h-[250px] bg-gray-50 dark:bg-slate-900/60 relative border-b border-gray-100 dark:border-slate-800 flex items-center justify-center p-3">
                                 <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-white/30 dark:bg-slate-900/50 backdrop-blur-[2px] z-20 pointer-events-none rounded-t-2xl">
                                     <span class="bg-black/75 dark:bg-white/80 text-white dark:text-gray-900 text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg">🔍 Perbesar Gambar</span>
@@ -1280,17 +1325,17 @@
                                      onerror="this.onerror=null; this.src='${fallbackImg}';">
                             </div>
                             
-                            <div class="p-3.5 sm:p-4 flex flex-col justify-center space-y-2.5">
-                                <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-100/50 dark:border-blue-900/40">
+                            <div class="p-3.5 sm:p-4 flex flex-col justify-start space-y-2.5 text-left">
+                                <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-100/50 dark:border-blue-900/40 text-left">
                                     <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-0.5 block">Deskripsi / Nama Produk</span>
                                     <span class="text-gray-800 dark:text-gray-100 font-bold text-sm sm:text-base">${item.deskripsi || '-'}</span>
                                 </div>
                                 
                                 ${tdkHtml}
 
-                                <div class="bg-gray-50 dark:bg-slate-800/60 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
-                                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 block">Notasi / Keterangan Susunan</span>
-                                    <span class="text-gray-600 dark:text-gray-300 font-medium text-xs sm:text-sm leading-relaxed">${item.notasi || '-'}</span>
+                                <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-100/50 dark:border-blue-900/40 text-left">
+                                    <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-0.5 block">Notasi / Keterangan Susunan</span>
+                                    <span class="text-gray-800 dark:text-gray-100 font-bold text-sm sm:text-base leading-relaxed">${item.notasi || '-'}</span>
                                 </div>
 
                                 ${formatHtml}
