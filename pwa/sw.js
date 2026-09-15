@@ -1,11 +1,12 @@
 // Nama cache internal - perbarui versi untuk memicu update service worker
-const CACHE_NAME = 'ipc-passed-cache-v2.3';
+const CACHE_NAME = 'ipc-passed-cache-v2.5';
 
 // File statis inti yang di-pre-cache saat SW terinstall (tanpa deskripsi.json agar data selalu dinamis)
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './formater.js',
+  './js/index.js',
   './manifest.json',
   './pwa/manifest.json',
   './pwa/favicon.svg',
