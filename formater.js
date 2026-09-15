@@ -223,6 +223,24 @@ function formatCode(template, options = {}) {
   const mcCode = getMcCode(machine);
   const lineCode = getLineCode(machine);
 
+  // Pengecekan mesin LINE C:
+  // Untuk mesin dengan field line: LINE C, tidak perlu ditampilkan LINE-nya di format sekunder
+  let isLineC = false;
+  if (machine && typeof machine === 'object') {
+    if (machine.line && String(machine.line).trim().toUpperCase() === 'LINE C') {
+      isLineC = true;
+    } else if (machine.workstation && /^[0-9]+C$/i.test(String(machine.workstation).trim())) {
+      isLineC = true;
+    }
+  } else if (options.line && String(options.line).trim().toUpperCase() === 'LINE C') {
+    isLineC = true;
+  }
+
+  const isSekunder = options.isSekunder !== undefined 
+    ? Boolean(options.isSekunder) 
+    : (template.includes('{LINE}') || template.includes('TIME') || template.includes('{TIME}'));
+  const hideLineInSekunder = isLineC && isSekunder;
+
   const replacements = {
     // 1. TANGGAL TETAP (otomatis +1 pada sekunder jika jam 00:00 - 05:59)
     '{DD}': effectiveDFixed.DD,
@@ -316,7 +334,7 @@ function formatCode(template, options = {}) {
     '{NUM_SHIFT}': String(shiftNum),
     '{TXT_SHIFT}': shiftTxt,
     '{MC}': mcCode,
-    '{LINE}': lineCode,
+    '{LINE}': hideLineInSekunder ? '' : lineCode,
     '{TIMEPOUCH}': timeStr,
     '{TIME}': timeStr,
 
@@ -349,6 +367,12 @@ function formatCode(template, options = {}) {
   };
 
   let result = template;
+  if (hideLineInSekunder) {
+    // Hapus token {LINE} beserta spasi sebelumnya agar format sekunder rapi
+    // Contoh: 'ED {EXP2_DDMMYY} TIME {LINE}' -> 'ED {EXP2_DDMMYY} TIME'
+    result = result.replace(/[ \t]*\{LINE\}/g, '');
+  }
+
   const keys = Object.keys(replacements).sort((a, b) => b.length - a.length);
 
   for (const key of keys) {
@@ -361,6 +385,9 @@ function formatCode(template, options = {}) {
   // Contoh: 'ED 080728 TIME A0' -> 'ED 080728 12:00 A0'
   // atau 'TIME/BATCH 2/MADE IN INDONESIA' -> '14:30/BATCH 2/MADE IN INDONESIA'
   result = result.replace(/\bTIME\b/g, timeStr);
+
+  // Bersihkan spasi kosong di ujung setiap baris
+  result = result.split('\n').map(line => line.trimEnd()).join('\n').trim();
 
   return result;
 }
