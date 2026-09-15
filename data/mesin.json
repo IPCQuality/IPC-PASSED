@@ -103,7 +103,7 @@
       "cluster": "sachet"
     },
     {
-      "name": "AST 8-16L",
+      "name": "AST 08-16L",
       "line": "LINE A",
       "workstation": "5A",
       "cluster": "sachet"
@@ -127,13 +127,13 @@
       "cluster": "sachet"
     },
     {
-      "name": "AST 7-16L",
+      "name": "AST 07-16L",
       "line": "LINE A",
       "workstation": "6A",
       "cluster": "sachet"
     },
     {
-      "name": "AST 9-16L",
+      "name": "AST 09-16L",
       "line": "LINE A",
       "workstation": "6A",
       "cluster": "sachet"
@@ -151,19 +151,19 @@
       "cluster": "sachet"
     },
     {
-      "name": "AST 3-16L",
+      "name": "AST 03-16L",
       "line": "LINE A",
       "workstation": "7A",
       "cluster": "sachet"
     },
     {
-      "name": "AST 5-16L",
+      "name": "AST 05-16L",
       "line": "LINE A",
       "workstation": "7A",
       "cluster": "sachet"
     },
     {
-      "name": "AST 4-16L",
+      "name": "AST 04-16L",
       "line": "LINE A",
       "workstation": "7A",
       "cluster": "sachet"
@@ -181,13 +181,13 @@
       "cluster": "sachet"
     },
     {
-      "name": "AST 6-16L",
+      "name": "AST 06-16L",
       "line": "LINE A",
       "workstation": "8A",
       "cluster": "sachet"
     },
     {
-      "name": "AST 2-16L",
+      "name": "AST 02-16L",
       "line": "LINE A",
       "workstation": "8A",
       "cluster": "sachet"

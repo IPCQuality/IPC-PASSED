@@ -1,8 +1,8 @@
 [
   {
     "format": "lsachet1",
-    "primer": "MFD {DDMMYY} {MC}{TXT_SHIFT}2",
-    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
+    "primer": "MFD {DDMMYY} {MC}2",
+    "sekunder": "ED {EXP2_DDMMYY} {TIME} {LINE}"
   },
   {
     "format": "lsachet2",
