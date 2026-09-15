@@ -200,7 +200,7 @@
     // ============================================================================
     const REPO_OWNER = "IPCQuality";
     const REPO_NAME = "IPC-PASSED";
-    const JSON_PATH = "deskripsi.json";
+    const JSON_PATH = "data/deskripsi.json";
     const IMG_FOLDER = "images/";
 
     let activeCardIndexForUpload = null;
@@ -571,7 +571,8 @@
           deskripsi: String(item.deskripsi || "").trim(),
           notasi: String(item.notasi || "").trim(),
           tdk: String(item.tdk || "").trim(),
-          img: String(item.img || "").trim()
+          img: String(item.img || "").trim(),
+          format: String(item.format || "lpouch1").trim()
         }));
         const wrapper = { version: 1, count: cleanRecords.length, records: cleanRecords };
         const jsonString = JSON.stringify(wrapper, null, 2);
@@ -758,7 +759,7 @@
       }
 
       normalizeItemStructure(obj) {
-        if (!obj) return { mid: "", deskripsi: "", notasi: "", tdk: "", img: "", oldImg: "", localImagePreview: null, newImageBase64: null };
+        if (!obj) return { mid: "", deskripsi: "", notasi: "", tdk: "", format: "lpouch1", img: "", oldImg: "", localImagePreview: null, newImageBase64: null };
         const lower = {};
         Object.keys(obj).forEach(key => { lower[key.toLowerCase()] = obj[key]; });
         const midVal = String(lower.mid || lower.mids || lower.id_mid || "").trim();
@@ -770,6 +771,7 @@
           deskripsi: String(lower.deskripsi || lower.produk || lower.nama || "").trim(),
           notasi: String(lower.notasi || lower.keterangan || lower.desc || "").trim(),
           tdk: String(lower.tdk || lower.nomortdk || "").trim(),
+          format: String(lower.format || "lpouch1").trim(),
           img: imgVal,
           oldImg: imgVal,
           localImagePreview: lower.localimagepreview || null,

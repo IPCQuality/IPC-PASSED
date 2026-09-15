@@ -1,10 +1,11 @@
 // Nama cache internal - perbarui versi untuk memicu update service worker
-const CACHE_NAME = 'ipc-passed-cache-v2.2';
+const CACHE_NAME = 'ipc-passed-cache-v2.3';
 
 // File statis inti yang di-pre-cache saat SW terinstall (tanpa deskripsi.json agar data selalu dinamis)
 const PRECACHE_ASSETS = [
   './',
   './index.html',
+  './formater.js',
   './manifest.json',
   './pwa/manifest.json',
   './pwa/favicon.svg',
@@ -50,14 +51,14 @@ self.addEventListener('message', async (event) => {
   }
   if (event.data.action === 'invalidateDataCache') {
     const cache = await caches.open(CACHE_NAME);
-    await cache.delete('./deskripsi.json');
+    await cache.delete('./data/deskripsi.json');
     const keys = await cache.keys();
     for (const key of keys) {
       if (key.url.includes('deskripsi.json')) {
         await cache.delete(key);
       }
     }
-    console.log('[SW] Cache deskripsi.json berhasil di-invalidasi');
+    console.log('[SW] Cache data/deskripsi.json berhasil di-invalidasi');
   }
 });
 
@@ -104,13 +105,13 @@ self.addEventListener('fetch', (event) => {
           if (networkResponse && networkResponse.status === 200) {
             const cache = await caches.open(CACHE_NAME);
             cache.put(request, networkResponse.clone());
-            cache.put('./deskripsi.json', networkResponse.clone());
+            cache.put('./data/deskripsi.json', networkResponse.clone());
           }
           return networkResponse;
         })
         .catch(async () => {
           const cache = await caches.open(CACHE_NAME);
-          const cached = await cache.match(request) || await cache.match('./deskripsi.json');
+          const cached = await cache.match(request) || await cache.match('./data/deskripsi.json');
           if (cached) {
             return cached;
           }

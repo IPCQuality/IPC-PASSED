@@ -1,0 +1,616 @@
+{
+  "machines": [
+    {
+      "name": "AST 33-16L",
+      "line": "LINE A",
+      "workstation": "0A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 14-12L",
+      "line": "LINE A",
+      "workstation": "0A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 36-16L",
+      "line": "LINE A",
+      "workstation": "1A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 44-16L",
+      "line": "LINE A",
+      "workstation": "1A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 61-16L",
+      "line": "LINE A",
+      "workstation": "1A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 70-16L",
+      "line": "LINE A",
+      "workstation": "2A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 69-16L",
+      "line": "LINE A",
+      "workstation": "2A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 67-16L",
+      "line": "LINE A",
+      "workstation": "2A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 68-16L",
+      "line": "LINE A",
+      "workstation": "2A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 54-16L",
+      "line": "LINE A",
+      "workstation": "3A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 55-16L",
+      "line": "LINE A",
+      "workstation": "3A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 22-16L",
+      "line": "LINE A",
+      "workstation": "3A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 26-16L",
+      "line": "LINE A",
+      "workstation": "4A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 27-16L",
+      "line": "LINE A",
+      "workstation": "4A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 28-16L",
+      "line": "LINE A",
+      "workstation": "4A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 65-16L",
+      "line": "LINE A",
+      "workstation": "4A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 29-16L",
+      "line": "LINE A",
+      "workstation": "5A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 8-16L",
+      "line": "LINE A",
+      "workstation": "5A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 10-16L",
+      "line": "LINE A",
+      "workstation": "5A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 12-16L",
+      "line": "LINE A",
+      "workstation": "5A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 30-16L",
+      "line": "LINE A",
+      "workstation": "6A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 7-16L",
+      "line": "LINE A",
+      "workstation": "6A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 9-16L",
+      "line": "LINE A",
+      "workstation": "6A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 11-16L",
+      "line": "LINE A",
+      "workstation": "6A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 71-16L",
+      "line": "LINE A",
+      "workstation": "7A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 3-16L",
+      "line": "LINE A",
+      "workstation": "7A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 5-16L",
+      "line": "LINE A",
+      "workstation": "7A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 4-16L",
+      "line": "LINE A",
+      "workstation": "7A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 72-16L",
+      "line": "LINE A",
+      "workstation": "8A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 18-16L",
+      "line": "LINE A",
+      "workstation": "8A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 6-16L",
+      "line": "LINE A",
+      "workstation": "8A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 2-16L",
+      "line": "LINE A",
+      "workstation": "8A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 63-16L",
+      "line": "LINE A",
+      "workstation": "9A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 15-16L",
+      "line": "LINE A",
+      "workstation": "9A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 16-16L",
+      "line": "LINE A",
+      "workstation": "9A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 17-16L",
+      "line": "LINE A",
+      "workstation": "9A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 19-16L",
+      "line": "LINE A",
+      "workstation": "10A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 20-16L",
+      "line": "LINE A",
+      "workstation": "10A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 21-16L",
+      "line": "LINE A",
+      "workstation": "10A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 60-16L",
+      "line": "LINE A",
+      "workstation": "10A",
+      "cluster": "sachet"
+    },
+    {
+      "name": "K1",
+      "line": "LINE B",
+      "workstation": "0B",
+      "cluster": "botol"
+    },
+    {
+      "name": "K2",
+      "line": "LINE B",
+      "workstation": "0B",
+      "cluster": "botol"
+    },
+    {
+      "name": "AST 41-16L",
+      "line": "LINE B",
+      "workstation": "1B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 47-16L",
+      "line": "LINE B",
+      "workstation": "1B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 51-16L",
+      "line": "LINE B",
+      "workstation": "1B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 50-16L",
+      "line": "LINE B",
+      "workstation": "1B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 46-16L",
+      "line": "LINE B",
+      "workstation": "2B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 45-16L",
+      "line": "LINE B",
+      "workstation": "2B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 42-16L",
+      "line": "LINE B",
+      "workstation": "2B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 43-16L",
+      "line": "LINE B",
+      "workstation": "2B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 53-16L",
+      "line": "LINE B",
+      "workstation": "3B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 52-16L",
+      "line": "LINE B",
+      "workstation": "3B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 48-16L",
+      "line": "LINE B",
+      "workstation": "3B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 49-16L",
+      "line": "LINE B",
+      "workstation": "3B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "APK 45",
+      "line": "LINE B",
+      "workstation": "4B",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 46",
+      "line": "LINE B",
+      "workstation": "4B",
+      "cluster": "pouch"
+    },
+    {
+      "name": "AST 24-12L",
+      "line": "LINE B",
+      "workstation": "5B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 31-12L",
+      "line": "LINE B",
+      "workstation": "5B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 23-12L",
+      "line": "LINE B",
+      "workstation": "5B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 62-12L",
+      "line": "LINE B",
+      "workstation": "5B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "K8",
+      "line": "LINE B",
+      "workstation": "6B",
+      "cluster": "botol"
+    },
+    {
+      "name": "K7",
+      "line": "LINE B",
+      "workstation": "6B",
+      "cluster": "botol"
+    },
+    {
+      "name": "AST 39-12L",
+      "line": "LINE B",
+      "workstation": "7B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 38-12L",
+      "line": "LINE B",
+      "workstation": "7B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 37-12L",
+      "line": "LINE B",
+      "workstation": "7B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 40-12L",
+      "line": "LINE B",
+      "workstation": "7B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "APK 15",
+      "line": "LINE B",
+      "workstation": "8B",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 12",
+      "line": "LINE B",
+      "workstation": "8B",
+      "cluster": "pouch"
+    },
+    {
+      "name": "AST 66-16L",
+      "line": "LINE B",
+      "workstation": "9B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 35-16L",
+      "line": "LINE B",
+      "workstation": "9B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 34-16L",
+      "line": "LINE B",
+      "workstation": "9B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 73-12L",
+      "line": "LINE B",
+      "workstation": "9B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 25-12L",
+      "line": "LINE B",
+      "workstation": "10B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 13-12L",
+      "line": "LINE B",
+      "workstation": "10B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "AST 32-12L",
+      "line": "LINE B",
+      "workstation": "10B",
+      "cluster": "sachet"
+    },
+    {
+      "name": "X3",
+      "line": "LINE B",
+      "workstation": "11B",
+      "cluster": "botol"
+    },
+    {
+      "name": "APK 40",
+      "line": "LINE C",
+      "workstation": "1C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 43",
+      "line": "LINE C",
+      "workstation": "1C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 44",
+      "line": "LINE C",
+      "workstation": "1C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 19",
+      "line": "LINE C",
+      "workstation": "2C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 26",
+      "line": "LINE C",
+      "workstation": "2C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 13",
+      "line": "LINE C",
+      "workstation": "3C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 61",
+      "line": "LINE C",
+      "workstation": "3C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 9",
+      "line": "LINE C",
+      "workstation": "3C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 42",
+      "line": "LINE C",
+      "workstation": "4C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 38",
+      "line": "LINE C",
+      "workstation": "4C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 55",
+      "line": "LINE C",
+      "workstation": "4C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 32",
+      "line": "LINE C",
+      "workstation": "5C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 54",
+      "line": "LINE C",
+      "workstation": "5C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "K5",
+      "line": "LINE C",
+      "workstation": "6C",
+      "cluster": "botol"
+    },
+    {
+      "name": "K6",
+      "line": "LINE C",
+      "workstation": "6C",
+      "cluster": "botol"
+    },
+    {
+      "name": "X2",
+      "line": "LINE C",
+      "workstation": "7C",
+      "cluster": "botol"
+    },
+    {
+      "name": "K9",
+      "line": "LINE C",
+      "workstation": "7C",
+      "cluster": "botol"
+    },
+    {
+      "name": "APK 58",
+      "line": "LINE C",
+      "workstation": "8C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 59",
+      "line": "LINE C",
+      "workstation": "8C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 63",
+      "line": "LINE C",
+      "workstation": "9C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 31",
+      "line": "LINE C",
+      "workstation": "10C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "APK 56",
+      "line": "LINE C",
+      "workstation": "10C",
+      "cluster": "pouch"
+    },
+    {
+      "name": "C1",
+      "line": "WW",
+      "workstation": "WW",
+      "cluster": "sachet"
+    },
+    {
+      "name": "C2",
+      "line": "WW",
+      "workstation": "WW",
+      "cluster": "sachet"
+    },
+    {
+      "name": "M2",
+      "line": "OT",
+      "workstation": "OT",
+      "cluster": "botol"
+    },
+    {
+      "name": "M3",
+      "line": "OT",
+      "workstation": "OT",
+      "cluster": "botol"
+    }
+  ]
+}

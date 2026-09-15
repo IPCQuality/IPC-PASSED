@@ -1,0 +1,167 @@
+[
+  {
+    "format": "lsachet1",
+    "primer": "MFD {DDMMYY} {MC}{TXT_SHIFT}2",
+    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
+  },
+  {
+    "format": "lsachet2",
+    "primer": "{LOT_DDMMYY}{NUM_LOT}{MC}2",
+    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
+  },
+  {
+    "format": "lsachet3",
+    "primer": "{DDMMYY} {MC}2",
+    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
+  },
+  {
+    "format": "lsachet4",
+    "primer": "ED {EXP2_DDMMYY} {MC}2",
+    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
+  },
+  {
+    "format": "lsachet5",
+    "primer": "ED {EXP1_DDMMYY} {MC}2",
+    "sekunder": "ED {EXP1_DDMMYY} TIME {LINE}"
+  },
+  {
+    "format": "xsachet1",
+    "primer": "ED {EXP2_DDMMYY} {MC}{TXT_SHIFT}2",
+    "sekunder": "ED {EXP2_DDMMYY} TIME"
+  },
+  {
+    "format": "xsachet2",
+    "primer": "{MC}EXP{EXP25_DDMMMYY}",
+    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xsachet3",
+    "primer": "BAGIAN SAMPING : 0{NUM_SHIFT}EXP{EXP25_DDMMMYY}\nBAGIAN TENGAH : MFD {DDMMMYY}",
+    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xsachet4",
+    "primer": "Detergente Liquido\nProduz ido na Indonésia\nProd{DD} {MM} {YY} Exp {EXP25_DD} {EXP25_MM} {EXP25_YY}",
+    "sekunder": "Produz ido na Indonésia\nProd{DD} {MM} {YY} Exp {EXP25_DD} {EXP25_MM} {EXP25_YY}"
+  },
+  {
+    "format": "xsachet5",
+    "primer": "MFD {DDMMMYY} 0{NUM_SHIFT}\nEXP {EXP25_DDMMMYY}",
+    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xsachet6",
+    "primer": "{MC}EXP{EXP2_DDMMMYY}",
+    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT} EXP {EXP2_DDMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xsachet7",
+    "primer": "MFD{DDMMYY}{TXT_SHIFT}{EXP2_YY}",
+    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT} EXP {EXP2_DDMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xsachet8",
+    "primer": "PD {DDMMMYYYY} {TXT_SHIFT}2\nED {EXP25_DDMMMYYYY}",
+    "sekunder": "PROD {DDMMMYYYY} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "lpouch1",
+    "primer": "MFD {DDMMYY} {MC}{TXT_SHIFT}2\n{TIMEPOUCH}",
+    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
+  },
+  {
+    "format": "lpouch2",
+    "primer": "MFD {LOT_DDMMYY} {TXT_LOT} {DD}A{MC}{TXT_SHIFT}2",
+    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
+  },
+  {
+    "format": "lpouch3",
+    "primer": "E {EXP2_LOT_DDMMYY} {TXT_LOT} {DD}A{MC}{TXT_SHIFT}2",
+    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
+  },
+  {
+    "format": "xpouch1",
+    "primer": "PROD {DDMMMYYYY}-{NUM_SHIFT}\nEXP {EXP25_DDMMMYYYY}\nBATCH {NUM_SHIFT}/MADE IN INDONESIA",
+    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xpouch2",
+    "primer": "PROD {DDMMYYYY}-{NUM_SHIFT}\nMADE IN INDONESIA",
+    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT}\nMADE IN INDONESIA"
+  },
+  {
+    "format": "xpouch3",
+    "primer": "MFD {YYYY}{MM}{DD}-{NUM_SHIFT}",
+    "sekunder": "MFD {YYYY}{MM}{DD}-{NUM_SHIFT}"
+  },
+  {
+    "format": "xpouch4",
+    "primer": "PD {DDMMMYYYY} {TXT_SHIFT}2\nED {EXP25_DDMMMYYYY}",
+    "sekunder": "PROD {DDMMMYYYY} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xpouch5",
+    "primer": "PD {DDMMMYYYY} {TXT_SHIFT}2\nED {EXP2_DDMMMYYYY}",
+    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP2_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "lbotol1",
+    "primer": "MFD {DDMMYY} {MC}{TXT_SHIFT}2",
+    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
+  },
+  {
+    "format": "lbotol2",
+    "primer": "MFD {LOT_DDMMYY} {TXT_LOT} {DD}{MC}{TXT_SHIFT}2",
+    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
+  },
+  {
+    "format": "lbotol3",
+    "primer": "ED {EXP2_DDMMYY} {MC}{TXT_SHIFT}2",
+    "sekunder": "ED {EXP2_DDMMYY} TIME"
+  },
+  {
+    "format": "lbotol5",
+    "primer": "ED {EXP2_LOT_DDMMYY} {TXT_LOT} {DD}{MC}{TXT_SHIFT}2",
+    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
+  },
+  {
+    "format": "xbotol1",
+    "primer": "PROD {DDMMMYYYY}-{NUM_SHIFT}\nEXP {EXP25_DDMMMYYYY}\nBATCH {NUM_SHIFT}/MADE IN INDONESIA",
+    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xbotol2",
+    "primer": "PROD {DDMMYYYY}-{NUM_SHIFT}\nEXP {EXP2_DDMMYYYY}\nBATCH {NUM_SHIFT}/MADE IN INDONESIA",
+    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT} EXP {EXP2_DDMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  },
+  {
+    "format": "xbotol3",
+    "primer": "PROD {DDMMYYYY}-{NUM_SHIFT}\nMADE IN INDONESIA",
+    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT}\nMADE IN INDONESIA"
+  },
+  {
+    "format": "xbotol4",
+    "primer": "PD : {MMM} {YYYY}\nED : {EXP2_MMM} {EXP2_YYYY}\nMFD : {DDMMYY} TIME",
+    "sekunder": "PD : {MMM} {YYYY} ED : {EXP2_MMM} {EXP2_YYYY}\nMFD : {DDMMYY} TIME"
+  },
+  {
+    "format": "lpouchcpkb1",
+    "primer": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD}{NUM_SHIFT} 2",
+    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
+  },
+  {
+    "format": "lbotolcpkb1",
+    "primer": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD}{NUM_SHIFT} 2",
+    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
+  },
+  {
+    "format": "xbotolcpkb1",
+    "primer": "PROD {LOT_DDMMYYYY}-{DD}{NUM_LOT}\nMADE IN INDONESIA",
+    "sekunder": "PROD {LOT_DDMMYYYY}-{DD}{NUM_LOT}\nMADE IN INDONESIA"
+  },
+  {
+    "format": "xbotolcpkb2",
+    "primer": "PROD {DDMMYYYY}-{NUM_SHIFT}\nEXP {EXP2_LOT_DDMMYY}\nBATCH {NUM_SHIFT}/MADE IN INDONESIA",
+    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT} EXP {EXP2_LOT_DDMMYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
+  }
+]
