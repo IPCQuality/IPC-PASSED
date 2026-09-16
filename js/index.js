@@ -1074,12 +1074,10 @@
                     ` : '';
 
                     const sekunderBoxHtml = isManualSekunderActive
-                        ? `<div class="w-full bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-300/80 dark:border-amber-800/80 font-mono text-xs sm:text-sm font-extrabold text-amber-900 dark:text-amber-200 whitespace-pre-wrap break-words text-left tracking-wider shadow-sm select-text flex items-center justify-between"><span>${cleanSekunder}</span><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-200 dark:bg-amber-900/80 text-amber-800 dark:text-amber-200 uppercase font-sans">msachet1</span></div>`
+                        ? `<div class="w-full bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-300/80 dark:border-amber-800/80 font-mono text-xs sm:text-sm font-extrabold text-amber-900 dark:text-amber-200 whitespace-pre-wrap break-words text-left tracking-wider shadow-sm select-text flex items-center justify-between"><span>${cleanSekunder}</span><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-200 dark:bg-amber-900/80 text-amber-800 dark:text-amber-200 font-sans">(MANUAL)</span></div>`
                         : `<div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words text-left tracking-wide shadow-sm select-text">${cleanSekunder}</div>`;
 
-                    const formatTitleTag = isManualSekunderActive
-                        ? `<span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block text-left">Spesifikasi Format Printing (${formatKey}) <span class="text-amber-600 dark:text-amber-400 font-extrabold">• msachet1 (MANUAL)</span></span>`
-                        : `<span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block text-left">Spesifikasi Format Printing (${formatKey})</span>`;
+                    const formatTitleTag = `<span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block text-left">Spesifikasi Format Printing</span>`;
 
                     const formatHtml = `
                         <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100/50 dark:border-blue-900/40 space-y-2.5 text-left">

@@ -1,8 +1,34 @@
     // ============================================================================
     // KONFIGURASI GLOBAL REPOSITORI
     // ============================================================================
-    const REPO_OWNER = "IPCQuality";
-    const REPO_NAME = "IPC-PASSED";
+    function detectRepoConfig() {
+      let defaultOwner = "IPCQuality";
+      let defaultRepo = "IPC-PASSED";
+
+      if (typeof window !== "undefined" && window.location) {
+        const host = (window.location.hostname || "").toLowerCase();
+        if (host.endsWith(".github.io")) {
+          const userFromHost = host.split(".")[0];
+          if (userFromHost) defaultOwner = userFromHost;
+          const pathParts = window.location.pathname.split("/").filter(Boolean);
+          if (pathParts.length > 0 && !pathParts[0].includes(".")) {
+            defaultRepo = pathParts[0];
+          }
+        }
+      }
+
+      const savedOwner = typeof localStorage !== "undefined" ? localStorage.getItem("github_admin_repo_owner") : null;
+      const savedRepo = typeof localStorage !== "undefined" ? localStorage.getItem("github_admin_repo_name") : null;
+
+      return {
+        owner: (savedOwner || defaultOwner).trim(),
+        repo: (savedRepo || defaultRepo).trim()
+      };
+    }
+
+    const INIT_REPO_CONFIG = detectRepoConfig();
+    const REPO_OWNER = INIT_REPO_CONFIG.owner;
+    const REPO_NAME = INIT_REPO_CONFIG.repo;
     const JSON_PATH = "data/deskripsi.json";
     const IMG_FOLDER = "images/";
 
@@ -457,11 +483,16 @@
         }
       }
 
-      initializeSystem(token) {
+      initializeSystem(token, owner, repo) {
+        if (owner) this.repoOwner = String(owner).trim();
+        if (repo) this.repoName = String(repo).trim();
         this.client = new GithubClient(token);
         this.repository = new GithubRepository(this.client, this.repoOwner, this.repoName);
         this.uploader = new GithubUploader(this.repository, this.imageFolder);
         this.transaction = new GithubTransaction(this.repository, this.uploader, this.jsonPath);
+
+        const badge = document.getElementById("activeRepoBadge");
+        if (badge) badge.innerText = `${this.repoOwner}/${this.repoName}`;
       }
 
       async loadAllData() {
@@ -470,9 +501,26 @@
 
         try {
           // Tarik data file JSON deskripsi
-          const fileData = await this.repository.getFileContentUTF8(this.jsonPath);
-          const parsed = JSON.parse(fileData.content);
-          const rawRecords = parsed.records || [];
+          let rawRecords = [];
+          try {
+            const fileData = await this.repository.getFileContentUTF8(this.jsonPath);
+            const parsed = JSON.parse(fileData.content);
+            rawRecords = parsed.records || [];
+          } catch (fetchErr) {
+            GithubLogger.log("LoadData", `Gagal membaca remote ${this.jsonPath}: ${fetchErr.message}. Menggunakan fallback lokal...`, "warning");
+            try {
+              const localRes = await fetch(`./${this.jsonPath}?_t=${Date.now()}`);
+              if (localRes.ok) {
+                const localJson = await localRes.json();
+                rawRecords = localJson.records || [];
+                LocalNotification.show("Memuat data deskripsi dari file lokal", false);
+              } else {
+                throw fetchErr;
+              }
+            } catch (localErr) {
+              throw fetchErr;
+            }
+          }
           this.items = rawRecords.map(r => this.normalizeItemStructure(r));
 
           // Tarik daftar pilihan format dari data/format.json
@@ -506,7 +554,12 @@
           }
           
           // Tarik daftar file aktual di folder images/
-          const imageList = await this.repository.getRemoteImageNames(this.imageFolder);
+          let imageList = [];
+          try {
+            imageList = await this.repository.getRemoteImageNames(this.imageFolder);
+          } catch (imgErr) {
+            GithubLogger.log("LoadData", `Catatan: info gambar remote (${imgErr.message})`, "warning");
+          }
           this.remoteImages = new Set(imageList);
 
           GithubLogger.log("LoadData", `Berhasil memuat ${this.items.length} item dan ${this.remoteImages.size} aset gambar.`, "success");
@@ -1061,27 +1114,152 @@
       hiddenInput.click();
     }
 
+    function toggleTokenVisibility() {
+      const input = document.getElementById("gateTokenInput");
+      const openIcon = document.getElementById("eyeIconOpen");
+      const closedIcon = document.getElementById("eyeIconClosed");
+      if (!input) return;
+      if (input.type === "password") {
+        input.type = "text";
+        openIcon?.classList.add("hidden");
+        closedIcon?.classList.remove("hidden");
+      } else {
+        input.type = "password";
+        openIcon?.classList.remove("hidden");
+        closedIcon?.classList.add("hidden");
+      }
+    }
+
+    function toggleRepoSettings() {
+      const panel = document.getElementById("repoSettingsPanel");
+      const btn = document.getElementById("toggleRepoBtn");
+      if (!panel) return;
+      if (panel.classList.contains("hidden")) {
+        panel.classList.remove("hidden");
+        if (btn) btn.innerText = "(Tutup)";
+      } else {
+        panel.classList.add("hidden");
+        if (btn) btn.innerText = "(Ubah)";
+      }
+    }
+
+    function resetRepoToDefault() {
+      const detected = detectRepoConfig();
+      localStorage.removeItem("github_admin_repo_owner");
+      localStorage.removeItem("github_admin_repo_name");
+      const ownerInput = document.getElementById("gateOwnerInput");
+      const repoInput = document.getElementById("gateRepoInput");
+      const display = document.getElementById("targetRepoDisplay");
+      if (ownerInput) ownerInput.value = detected.owner;
+      if (repoInput) repoInput.value = detected.repo;
+      if (display) display.innerText = `${detected.owner}/${detected.repo}`;
+      adminApp.repoOwner = detected.owner;
+      adminApp.repoName = detected.repo;
+      LocalNotification.show("Konfigurasi repositori di-reset ke default");
+    }
+
+    function saveRepoSettings() {
+      const ownerInput = document.getElementById("gateOwnerInput");
+      const repoInput = document.getElementById("gateRepoInput");
+      const owner = (ownerInput ? ownerInput.value.trim() : "") || "IPCQuality";
+      const repo = (repoInput ? repoInput.value.trim() : "") || "IPC-PASSED";
+      
+      localStorage.setItem("github_admin_repo_owner", owner);
+      localStorage.setItem("github_admin_repo_name", repo);
+      
+      const display = document.getElementById("targetRepoDisplay");
+      if (display) display.innerText = `${owner}/${repo}`;
+      
+      adminApp.repoOwner = owner;
+      adminApp.repoName = repo;
+      
+      toggleRepoSettings();
+      LocalNotification.show(`Repositori diatur ke ${owner}/${repo}`);
+    }
+
     async function unlockDashboard() {
-      const token = document.getElementById("gateTokenInput").value.trim();
+      const tokenInput = document.getElementById("gateTokenInput");
+      const token = (tokenInput ? tokenInput.value : "").trim().replace(/^["']|["']$/g, '');
       const alertBox = document.getElementById("gateAlert");
+      const submitBtn = document.getElementById("unlockSubmitBtn");
+
       if (!token) {
-        alertBox.innerText = "Token diperlukan.";
-        alertBox.classList.remove("hidden");
+        if (alertBox) {
+          alertBox.innerText = "Token GitHub diperlukan.";
+          alertBox.classList.remove("hidden");
+        }
         return;
       }
-      
+
+      const ownerInput = document.getElementById("gateOwnerInput");
+      const repoInput = document.getElementById("gateRepoInput");
+      const owner = (ownerInput && ownerInput.value.trim()) || adminApp.repoOwner || "IPCQuality";
+      const repo = (repoInput && repoInput.value.trim()) || adminApp.repoName || "IPC-PASSED";
+
+      if (alertBox) alertBox.classList.add("hidden");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          Memverifikasi...
+        `;
+      }
+
       try {
-        adminApp.initializeSystem(token);
+        adminApp.initializeSystem(token, owner, repo);
+
+        // 1. Validasi Token GitHub
+        let userLogin = "";
+        try {
+          const userMeta = await adminApp.client.request("GET", "/user");
+          if (userMeta && userMeta.login) userLogin = userMeta.login;
+        } catch (authErr) {
+          if (authErr.status === 401) {
+            throw new Error("Token GitHub tidak valid atau sudah kedaluwarsa (401 Bad credentials). Pastikan token disalin dengan benar tanpa spasi.");
+          }
+          // Jika token fine-grained tidak memiliki izin /user, lanjutkan ke uji repositori
+        }
+
+        // 2. Validasi Akses ke Repositori
+        try {
+          await adminApp.client.request("GET", `/repos/${owner}/${repo}`);
+        } catch (repoErr) {
+          if (repoErr.status === 404) {
+            throw new Error(`Repositori '${owner}/${repo}' tidak ditemukan di GitHub atau token tidak memiliki izin baca (scope 'repo'). Klik '(Ubah)' jika repositori Anda berbeda.`);
+          } else if (repoErr.status === 403) {
+            throw new Error(`Akses ke '${owner}/${repo}' ditolak (403 Forbidden). Pastikan token memiliki scope 'repo' atau 'Contents: Read & Write'.`);
+          } else {
+            throw new Error(`Gagal menghubungi GitHub untuk '${owner}/${repo}': ${repoErr.message}`);
+          }
+        }
+
         await adminApp.repository.branchManager.getBranch();
-        
+
+        // Simpan token & repo yang valid ke localStorage
+        localStorage.setItem("github_admin_token", token);
+        localStorage.setItem("github_admin_repo_owner", owner);
+        localStorage.setItem("github_admin_repo_name", repo);
+
         document.getElementById("tokenGate").classList.add("hidden");
         document.getElementById("adminDashboard").classList.remove("hidden");
-        localStorage.setItem("github_admin_token", token);
-        
+
+        const msgUser = userLogin ? ` (User: @${userLogin})` : '';
+        GithubLogger.log("Auth", `Berhasil terhubung ke ${owner}/${repo}${msgUser}`, "success");
+
         await adminApp.loadAllData();
       } catch (err) {
-        alertBox.innerText = "Token tidak valid.";
-        alertBox.classList.remove("hidden");
+        if (alertBox) {
+          alertBox.innerText = err.message || "Gagal membuka dashboard.";
+          alertBox.classList.remove("hidden");
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Masuk";
+        }
       }
     }
 
@@ -1184,9 +1362,19 @@
     });
 
     document.addEventListener("DOMContentLoaded", () => {
+      const config = detectRepoConfig();
+      const ownerInput = document.getElementById("gateOwnerInput");
+      const repoInput = document.getElementById("gateRepoInput");
+      const targetDisplay = document.getElementById("targetRepoDisplay");
+      
+      if (ownerInput) ownerInput.value = config.owner;
+      if (repoInput) repoInput.value = config.repo;
+      if (targetDisplay) targetDisplay.innerText = `${config.owner}/${config.repo}`;
+
       const savedToken = localStorage.getItem("github_admin_token");
       if (savedToken) {
-        document.getElementById("gateTokenInput").value = savedToken;
+        const tokenInput = document.getElementById("gateTokenInput");
+        if (tokenInput) tokenInput.value = savedToken;
         unlockDashboard();
       }
     });

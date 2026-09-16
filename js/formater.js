@@ -169,9 +169,23 @@ function formatCode(template, options = {}) {
     isActTime = true;
   }
 
-  // Cek apakah format ini dikecualikan dari pergantian tanggal dini hari (misal: msachet1 tidak ganti tanggal)
+  // Cek apakah format ini adalah msachet1 (sekunder manual)
   const formatKey = String(options.formatKey || options.format || '').trim().toLowerCase();
   const isMsachetTemplate = formatKey.startsWith('msachet') || template.trim() === '{EXP2_DDMMYY} {NUM_SHIFT}';
+  const isSekunder = options.isSekunder !== undefined 
+    ? Boolean(options.isSekunder) 
+    : (template.includes('{LINE}') || template.includes('TIME') || template.includes('{TIME}'));
+
+  // Logika Khusus Format Sekunder msachet1:
+  // Menggunakan cut-off jam 06:00 (pergantian tanggal baru terjadi saat Shift 1 jam 06:00).
+  // Jika masih Shift 3 (jam 00:00 - 05:59), tanggal produksi dianggap tanggal hari kemarin (-1 hari).
+  let baseDate = now;
+  if (isMsachetTemplate && isSekunder && isActTime) {
+    const adjustedDate = new Date(now.getTime());
+    adjustedDate.setDate(adjustedDate.getDate() - 1);
+    baseDate = adjustedDate;
+  }
+
   const disableDateShift = isMsachetTemplate || options.noDateShift === true;
 
   // Jika opsi isSekunder aktif (atau template mengandung TIME) dan waktu aktual jam 00:00-05:59,
@@ -198,32 +212,34 @@ function formatCode(template, options = {}) {
   }
 
   // 1. Tanggal Tetap & 2. Tanggal ACT (JAM 00 +1)
-  const dFixed = getDateObj(now, 0, 0, false, timeStr);
-  const dAct = getDateObj(now, 0, 0, true, timeStr);
+  const dFixed = getDateObj(baseDate, 0, 0, false, timeStr);
+  const dAct = getDateObj(baseDate, 0, 0, true, timeStr);
 
   // 3. & 4. EXP 2 TAHUN
-  const dExp2Fixed = getDateObj(now, 2, 0, false, timeStr);
-  const dExp2Act = getDateObj(now, 2, 0, true, timeStr);
+  const dExp2Fixed = getDateObj(baseDate, 2, 0, false, timeStr);
+  const dExp2Act = getDateObj(baseDate, 2, 0, true, timeStr);
 
   // 5. & 6. EXP 1 TAHUN
-  const dExp1Fixed = getDateObj(now, 1, 0, false, timeStr);
-  const dExp1Act = getDateObj(now, 1, 0, true, timeStr);
+  const dExp1Fixed = getDateObj(baseDate, 1, 0, false, timeStr);
+  const dExp1Act = getDateObj(baseDate, 1, 0, true, timeStr);
 
   // 7. & 8. EXP 2.5 TAHUN (2 tahun 6 bulan = 30 bulan)
-  const dExp25Fixed = getDateObj(now, 2, 6, false, timeStr);
-  const dExp25Act = getDateObj(now, 2, 6, true, timeStr);
+  const dExp25Fixed = getDateObj(baseDate, 2, 6, false, timeStr);
+  const dExp25Act = getDateObj(baseDate, 2, 6, true, timeStr);
 
   // 10. & 11. LOT TANGGAL TETAP (Sesuai kesepakatan: tanggal produksi yang sama)
   const dLotFixed = dFixed;
   const dExp2LotFixed = dExp2Fixed;
 
-  // Tanggal yang digunakan untuk token standar pada sekunder jika jam 00:00 - 05:59
-  const effectiveDFixed = (useActForSecondary && isActTime) ? dAct : dFixed;
-  const effectiveDExp2Fixed = (useActForSecondary && isActTime) ? dExp2Act : dExp2Fixed;
-  const effectiveDExp1Fixed = (useActForSecondary && isActTime) ? dExp1Act : dExp1Fixed;
-  const effectiveDExp25Fixed = (useActForSecondary && isActTime) ? dExp25Act : dExp25Fixed;
-  const effectiveDLotFixed = (useActForSecondary && isActTime) ? dAct : dLotFixed;
-  const effectiveDExp2LotFixed = (useActForSecondary && isActTime) ? dExp2Act : dExp2LotFixed;
+  // Tanggal yang digunakan untuk token standar:
+  // - Pada msachet1 sekunder: baseDate sudah disesuaikan mundur 1 hari jika jam 00:00 - 05:59 (cut-off 06:00).
+  // - Pada format lain (lsachet, xsachet, lpouch, botol, dll.): langsung mengikuti tanggal kalender aktual saat itu (contoh: tgl 17 tetap 17).
+  const effectiveDFixed = dFixed;
+  const effectiveDExp2Fixed = dExp2Fixed;
+  const effectiveDExp1Fixed = dExp1Fixed;
+  const effectiveDExp25Fixed = dExp25Fixed;
+  const effectiveDLotFixed = dLotFixed;
+  const effectiveDExp2LotFixed = dExp2LotFixed;
 
   const mcCode = getMcCode(machine);
   const lineCode = getLineCode(machine);
@@ -241,9 +257,6 @@ function formatCode(template, options = {}) {
     isLineC = true;
   }
 
-  const isSekunder = options.isSekunder !== undefined 
-    ? Boolean(options.isSekunder) 
-    : (template.includes('{LINE}') || template.includes('TIME') || template.includes('{TIME}'));
   const hideLineInSekunder = isLineC && isSekunder;
 
   const replacements = {
