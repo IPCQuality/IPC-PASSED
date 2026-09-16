@@ -340,13 +340,15 @@
       "name": "AST 24-12L",
       "line": "LINE B",
       "workstation": "5B",
-      "cluster": "sachet"
+      "cluster": "sachet",
+      "allow_manual": true
     },
     {
       "name": "AST 31-12L",
       "line": "LINE B",
       "workstation": "5B",
-      "cluster": "sachet"
+      "cluster": "sachet",
+      "allow_manual": true
     },
     {
       "name": "AST 23-12L",
@@ -448,7 +450,8 @@
       "name": "AST 32-12L",
       "line": "LINE B",
       "workstation": "10B",
-      "cluster": "sachet"
+      "cluster": "sachet",
+      "allow_manual": true
     },
     {
       "name": "X3",

@@ -1,5 +1,10 @@
 [
   {
+    "format": "msachet1",
+    "primer": "MFD {DDMMYY} {MC}2",
+    "sekunder": "{EXP2_DDMMYY} {NUM_SHIFT}"
+  },
+  {
     "format": "lsachet1",
     "primer": "MFD {DDMMYY} {MC}2",
     "sekunder": "ED {EXP2_DDMMYY} {TIME} {LINE}"
@@ -32,11 +37,6 @@
   {
     "format": "xsachet2",
     "primer": "{MC}EXP{EXP25_DDMMMYY}",
-    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xsachet3",
-    "primer": "BAGIAN SAMPING : 0{NUM_SHIFT}EXP{EXP25_DDMMMYY}\nBAGIAN TENGAH : MFD {DDMMMYY}",
     "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
   },
   {
@@ -143,25 +143,5 @@
     "format": "xbotol4",
     "primer": "PD : {MMM} {YYYY}\nED : {EXP2_MMM} {EXP2_YYYY}\nMFD : {DDMMYY} TIME",
     "sekunder": "PD : {MMM} {YYYY} ED : {EXP2_MMM} {EXP2_YYYY}\nMFD : {DDMMYY} TIME"
-  },
-  {
-    "format": "lpouchcpkb1",
-    "primer": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD}{NUM_SHIFT} 2",
-    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
-  },
-  {
-    "format": "lbotolcpkb1",
-    "primer": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD}{NUM_SHIFT} 2",
-    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
-  },
-  {
-    "format": "xbotolcpkb1",
-    "primer": "PROD {LOT_DDMMYYYY}-{DD}{NUM_LOT}\nMADE IN INDONESIA",
-    "sekunder": "PROD {LOT_DDMMYYYY}-{DD}{NUM_LOT}\nMADE IN INDONESIA"
-  },
-  {
-    "format": "xbotolcpkb2",
-    "primer": "PROD {DDMMYYYY}-{NUM_SHIFT}\nEXP {EXP2_LOT_DDMMYY}\nBATCH {NUM_SHIFT}/MADE IN INDONESIA",
-    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT} EXP {EXP2_LOT_DDMMYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
   }
 ]

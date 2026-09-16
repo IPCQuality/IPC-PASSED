@@ -169,9 +169,14 @@ function formatCode(template, options = {}) {
     isActTime = true;
   }
 
+  // Cek apakah format ini dikecualikan dari pergantian tanggal dini hari (misal: msachet1 tidak ganti tanggal)
+  const formatKey = String(options.formatKey || options.format || '').trim().toLowerCase();
+  const isMsachetTemplate = formatKey.startsWith('msachet') || template.trim() === '{EXP2_DDMMYY} {NUM_SHIFT}';
+  const disableDateShift = isMsachetTemplate || options.noDateShift === true;
+
   // Jika opsi isSekunder aktif (atau template mengandung TIME) dan waktu aktual jam 00:00-05:59,
-  // tanggal di sekunder otomatis mengikuti tanggal aktual (+1 hari)
-  const useActForSecondary = options.isSekunder !== undefined ? options.isSekunder : (template.includes('TIME') || template.includes('{TIME}'));
+  // tanggal di sekunder otomatis mengikuti tanggal aktual (+1 hari), KECUALI jika dinonaktifkan (seperti msachet1)
+  const useActForSecondary = !disableDateShift && (options.isSekunder !== undefined ? options.isSekunder : (template.includes('TIME') || template.includes('{TIME}')));
 
   // SHIFT 1 : D, SHIFT 2 : E, SHIFT 3 : _
   const shiftTxtMap = { 1: 'D', 2: 'E', 3: '_' };

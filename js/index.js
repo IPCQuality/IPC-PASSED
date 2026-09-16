@@ -201,6 +201,7 @@
                 badgeShiftName: document.getElementById('badge-shift-name'),
                 badgeLineWrap: document.getElementById('badge-line-wrap'),
                 badgeLineName: document.getElementById('badge-line-name'),
+                badgeManualWrap: document.getElementById('badge-manual-wrap'),
                 btnChangeConfig: document.getElementById('btn-change-config'),
 
                 modalSelectConfig: document.getElementById('modal-select-config'),
@@ -208,6 +209,8 @@
                 modalMidDesc: document.getElementById('modal-mid-desc'),
                 modalClusterWarning: document.getElementById('modal-cluster-warning'),
                 modalClusterWarningText: document.getElementById('modal-cluster-warning-text'),
+                wrapperManualSekunder: document.getElementById('wrapper-manual-sekunder'),
+                checkManualSekunder: document.getElementById('check-manual-sekunder'),
                 btnCloseConfigModal: document.getElementById('btn-close-config-modal'),
                 btnCancelConfigModal: document.getElementById('btn-cancel-config-modal'),
                 btnConfirmConfigModal: document.getElementById('btn-confirm-config-modal'),
@@ -616,7 +619,7 @@
                 if (!el.selectMesin) return;
                 
                 const clusterLabel = targetCluster ? (targetCluster.charAt(0).toUpperCase() + targetCluster.slice(1)) : '';
-                el.selectMesin.innerHTML = `<option value="">-- Pilih Mesin${clusterLabel ? ` (${clusterLabel})` : ''} --</option>`;
+                el.selectMesin.innerHTML = `<option value="">Pilih Mesin${clusterLabel ? ` (${clusterLabel})` : ''}</option>`;
                 
                 const seenNames = new Set();
                 const filteredMachines = machinesCache.filter(m => {
@@ -697,6 +700,33 @@
                 }
             }
 
+            function updateManualSekunderVisibility() {
+                if (!el.selectMesin || !el.wrapperManualSekunder) return;
+                const chosenMachineName = (el.selectMesin.value || '').trim();
+                if (!chosenMachineName) {
+                    el.wrapperManualSekunder.classList.add('hidden');
+                    if (el.checkManualSekunder) el.checkManualSekunder.checked = false;
+                    return;
+                }
+
+                const machineObj = machinesCache.find(m => (m.name || m.id) === chosenMachineName);
+                const isManualEligible = !!(machineObj && (
+                    machineObj.allow_manual === true ||
+                    machineObj.can_manual === true ||
+                    machineObj.mode_sekunder === 'MANUAL'
+                ));
+
+                if (isManualEligible) {
+                    el.wrapperManualSekunder.classList.remove('hidden');
+                    if (machineObj.mode_sekunder === 'MANUAL' && el.checkManualSekunder) {
+                        el.checkManualSekunder.checked = true;
+                    }
+                } else {
+                    el.wrapperManualSekunder.classList.add('hidden');
+                    if (el.checkManualSekunder) el.checkManualSekunder.checked = false;
+                }
+            }
+
             function openConfigModal(mid, matches) {
                 pendingSearchMid = mid;
                 pendingSearchMatches = matches;
@@ -715,8 +745,9 @@
                 // Isi dropdown mesin berdasarkan cluster kemasan
                 populateMachineDropdown(targetCluster);
 
-                // Periksa kecocokan cluster
+                // Periksa kecocokan cluster dan visibilitas opsi manual sekunder
                 updateModalClusterWarning();
+                updateManualSekunderVisibility();
 
                 // Sinkronkan shift otomatis bila belum dipilih manual
                 autoSyncShift();
@@ -797,17 +828,30 @@
                 });
             }
 
-            // Event Listeners untuk sinkronisasi dan render ulang saat ada perubahan mesin atau shift di modal / setting
-            [el.selectMesin, el.selectShift].forEach(elem => {
-                if (elem) {
-                    elem.addEventListener('change', () => {
-                        updateModalClusterWarning();
-                        if (currentSearchMid && currentSearchMatches && currentState === 'result') {
-                            renderResult(currentSearchMid, currentSearchMatches);
-                        }
-                    });
-                }
-            });
+            // Event Listeners untuk sinkronisasi dan render ulang saat ada perubahan mesin, shift, atau mode manual di modal
+            if (el.selectMesin) {
+                el.selectMesin.addEventListener('change', () => {
+                    updateModalClusterWarning();
+                    updateManualSekunderVisibility();
+                    if (currentSearchMid && currentSearchMatches && currentState === 'result') {
+                        renderResult(currentSearchMid, currentSearchMatches);
+                    }
+                });
+            }
+            if (el.selectShift) {
+                el.selectShift.addEventListener('change', () => {
+                    if (currentSearchMid && currentSearchMatches && currentState === 'result') {
+                        renderResult(currentSearchMid, currentSearchMatches);
+                    }
+                });
+            }
+            if (el.checkManualSekunder) {
+                el.checkManualSekunder.addEventListener('change', () => {
+                    if (currentSearchMid && currentSearchMatches && currentState === 'result') {
+                        renderResult(currentSearchMid, currentSearchMatches);
+                    }
+                });
+            }
 
             // Pembaruan Realtime Otomatis: Cek setiap menit untuk update jam sekunder dan auto-sync shift
             setInterval(() => {
@@ -920,6 +964,12 @@
                 const selectedMachineId = el.selectMesin ? el.selectMesin.value : '';
                 const selectedMachine = machinesCache.find(m => (m.name && m.name === selectedMachineId) || (m.id && m.id === selectedMachineId)) || null;
                 const selectedShift = el.selectShift ? (parseInt(el.selectShift.value) || 1) : 1;
+                const isManualSekunderActive = !!(
+                    el.checkManualSekunder && 
+                    el.checkManualSekunder.checked && 
+                    el.wrapperManualSekunder && 
+                    !el.wrapperManualSekunder.classList.contains('hidden')
+                );
                 
                 // Update badge status di sticky quick bar hasil
                 if (el.badgeMesinName) {
@@ -934,6 +984,13 @@
                         el.badgeLineWrap.classList.remove('hidden');
                     } else {
                         el.badgeLineWrap.classList.add('hidden');
+                    }
+                }
+                if (el.badgeManualWrap) {
+                    if (isManualSekunderActive) {
+                        el.badgeManualWrap.classList.remove('hidden');
+                    } else {
+                        el.badgeManualWrap.classList.add('hidden');
                     }
                 }
 
@@ -966,19 +1023,34 @@
                         formatDef = formatsCache[formatKey] || null;
                     }
 
+                    let effectiveFormatDef = formatDef;
+                    if (isManualSekunderActive) {
+                        const msachetDef = Array.isArray(formatsCache)
+                            ? formatsCache.find(f => f.format === 'msachet1')
+                            : (formatsCache && formatsCache['msachet1']);
+                        if (msachetDef) {
+                            effectiveFormatDef = {
+                                ...(formatDef || {}),
+                                primer: (formatDef && formatDef.primer) ? formatDef.primer : msachetDef.primer,
+                                sekunder: msachetDef.sekunder
+                            };
+                        }
+                    }
+
                     let primerText = '-';
                     let sekunderText = '-';
 
-                    if (window.Formater && formatDef) {
+                    if (window.Formater && effectiveFormatDef) {
                         const opt = {
                             date: nowRealtime,
                             shift: selectedShift,
                             machine: selectedMachine,
                             customTime: realtimeJam,
-                            numLot: '1' // Lot default 1 -> Huruf Lot 'A' (2=B, 3=C, dst)
+                            numLot: '1', // Lot default 1 -> Huruf Lot 'A' (2=B, 3=C, dst)
+                            formatKey: isManualSekunderActive ? 'msachet1' : formatKey
                         };
-                        if (formatDef.primer) primerText = window.Formater.formatCode(formatDef.primer, { ...opt, isSekunder: false });
-                        if (formatDef.sekunder) sekunderText = window.Formater.formatCode(formatDef.sekunder, { ...opt, isSekunder: true });
+                        if (effectiveFormatDef.primer) primerText = window.Formater.formatCode(effectiveFormatDef.primer, { ...opt, isSekunder: false });
+                        if (effectiveFormatDef.sekunder) sekunderText = window.Formater.formatCode(effectiveFormatDef.sekunder, { ...opt, isSekunder: true });
                     }
 
                     const cleanPrimer = primerText ? String(primerText).split('\n').map(l => l.trim()).join('\n').trim() : '-';
@@ -1001,10 +1073,18 @@
                         </div>
                     ` : '';
 
+                    const sekunderBoxHtml = isManualSekunderActive
+                        ? `<div class="w-full bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-300/80 dark:border-amber-800/80 font-mono text-xs sm:text-sm font-extrabold text-amber-900 dark:text-amber-200 whitespace-pre-wrap break-words text-left tracking-wider shadow-sm select-text flex items-center justify-between"><span>${cleanSekunder}</span><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-200 dark:bg-amber-900/80 text-amber-800 dark:text-amber-200 uppercase font-sans">msachet1</span></div>`
+                        : `<div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words text-left tracking-wide shadow-sm select-text">${cleanSekunder}</div>`;
+
+                    const formatTitleTag = isManualSekunderActive
+                        ? `<span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block text-left">Spesifikasi Format Printing (${formatKey}) <span class="text-amber-600 dark:text-amber-400 font-extrabold">• msachet1 (MANUAL)</span></span>`
+                        : `<span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block text-left">Spesifikasi Format Printing (${formatKey})</span>`;
+
                     const formatHtml = `
                         <div class="bg-blue-50/60 dark:bg-blue-950/30 p-3.5 rounded-xl border border-blue-100/50 dark:border-blue-900/40 space-y-2.5 text-left">
                             <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block text-left">Spesifikasi Format Printing (${formatKey})</span>
+                                ${formatTitleTag}
                                 ${selectedMachine ? `<span class="text-[10px] bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-bold px-2 py-0.5 rounded-md font-mono">${selectedMachine.name}</span>` : '<span class="text-[10px] bg-blue-100/70 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded-md">Default</span>'}
                             </div>
 
@@ -1018,7 +1098,7 @@
 
                                 <div class="text-left flex flex-col justify-start items-start">
                                     <span class="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest block mb-1 text-left">Format Sekunder (Inkjet Outer / Kardus)</span>
-                                    <div class="w-full bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 font-mono text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words text-left tracking-wide shadow-sm select-text">${cleanSekunder}</div>
+                                    ${sekunderBoxHtml}
                                 </div>
                             </div>
                         </div>

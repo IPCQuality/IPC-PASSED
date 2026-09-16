@@ -912,6 +912,7 @@
 
           // Siapkan opsi format yang tersedia
           const defaultFormats = [
+            'msachet1',
             'lpouch1', 'lpouch2', 'lpouch3', 'xpouch1', 'xpouch2', 'xpouch3', 'xpouch4', 'xpouch5',
             'lsachet1', 'lsachet2', 'lsachet3', 'lsachet4', 'lsachet5',
             'xsachet1', 'xsachet2', 'xsachet3', 'xsachet4', 'xsachet5', 'xsachet6', 'xsachet7', 'xsachet8',
@@ -1149,7 +1150,8 @@
           shift: '1',
           machine: { name: 'APK 26', line: 'LINE A' },
           customTime: jam,
-          numLot: '1'
+          numLot: '1',
+          formatKey: formatKey
         };
         if (formatDef.primer) primerText = window.Formater.formatCode(formatDef.primer, { ...opt, isSekunder: false });
         if (formatDef.sekunder) sekunderText = window.Formater.formatCode(formatDef.sekunder, { ...opt, isSekunder: true });
