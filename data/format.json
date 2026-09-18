@@ -1,147 +1,224 @@
-[
-  {
-    "format": "msachet1",
-    "primer": "MFD {DDMMYY} {MC}2",
-    "sekunder": "{EXP2_DDMMYY} {NUM_SHIFT}"
+{
+  "metadata": {
+    "version": "1.0",
+    "nama_dokumen": "Format Kode Produksi dan Expired Date",
+    "area": "Liquid 3"
   },
-  {
-    "format": "lsachet1",
-    "primer": "MFD {DDMMYY} {MC}2",
-    "sekunder": "ED {EXP2_DDMMYY} {TIME} {LINE}"
+  "kamus_kode": {
+    "MFD": "Manufacturing Date / Tanggal Produksi",
+    "ED / EXP": "Expired Date / Tanggal Kadaluarsa",
+    "PD": "Production Date",
+    "DD / dd": "Tanggal packing / kadaluarsa",
+    "MM / mm": "Bulan packing / kadaluarsa (angka)",
+    "MMM / mmm": "Bulan packing / kadaluarsa (format huruf)",
+    "YY / yy": "Tahun packing / kadaluarsa (2 digit)",
+    "YYYY / yyyy": "Tahun packing / kadaluarsa (4 digit)",
+    "M / No Mesin": "Nomor/kode mesin 2 digit",
+    "S / Shift": "Shift packing (Manual: 1, 2, 3; Primer/MS2: D=Shift 1, E=Shift 2, _=Shift 3)",
+    "L": "Workstation mesin terbalik (A0, A1, A2, B0, C1, dll)",
+    "2": "Kode MIM",
+    "TIME / TIME": "Waktu packing",
+    "BATCH": "Batch / Shift Packing"
   },
-  {
-    "format": "lsachet2",
-    "primer": "{LOT_DDMMYY}{NUM_LOT}{MC}2",
-    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
-  },
-  {
-    "format": "lsachet3",
-    "primer": "{DDMMYY} {MC}2",
-    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
-  },
-  {
-    "format": "lsachet4",
-    "primer": "ED {EXP2_DDMMYY} {MC}2",
-    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
-  },
-  {
-    "format": "lsachet5",
-    "primer": "ED {EXP1_DDMMYY} {MC}2",
-    "sekunder": "ED {EXP1_DDMMYY} TIME {LINE}"
-  },
-  {
-    "format": "xsachet1",
-    "primer": "ED {EXP2_DDMMYY} {MC}{TXT_SHIFT}2",
-    "sekunder": "ED {EXP2_DDMMYY} TIME"
-  },
-  {
-    "format": "xsachet2",
-    "primer": "{MC}EXP{EXP25_DDMMMYY}",
-    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xsachet4",
-    "primer": "Detergente Liquido\nProduz ido na Indonésia\nProd{DD} {MM} {YY} Exp {EXP25_DD} {EXP25_MM} {EXP25_YY}",
-    "sekunder": "Produz ido na Indonésia\nProd{DD} {MM} {YY} Exp {EXP25_DD} {EXP25_MM} {EXP25_YY}"
-  },
-  {
-    "format": "xsachet5",
-    "primer": "MFD {DDMMMYY} 0{NUM_SHIFT}\nEXP {EXP25_DDMMMYY}",
-    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xsachet6",
-    "primer": "{MC}EXP{EXP2_DDMMMYY}",
-    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT} EXP {EXP2_DDMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xsachet7",
-    "primer": "MFD{DDMMYY}{TXT_SHIFT}{EXP2_YY}",
-    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT} EXP {EXP2_DDMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xsachet8",
-    "primer": "PD {DDMMMYYYY} {TXT_SHIFT}2\nED {EXP25_DDMMMYYYY}",
-    "sekunder": "PROD {DDMMMYYYY} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "lpouch1",
-    "primer": "MFD {DDMMYY} {MC}{TXT_SHIFT}2\n{TIMEPOUCH}",
-    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
-  },
-  {
-    "format": "lpouch2",
-    "primer": "MFD {LOT_DDMMYY} {TXT_LOT} {DD}A{MC}{TXT_SHIFT}2",
-    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
-  },
-  {
-    "format": "lpouch3",
-    "primer": "E {EXP2_LOT_DDMMYY} {TXT_LOT} {DD}A{MC}{TXT_SHIFT}2",
-    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
-  },
-  {
-    "format": "xpouch1",
-    "primer": "PROD {DDMMMYYYY}-{NUM_SHIFT}\nEXP {EXP25_DDMMMYYYY}\nBATCH {NUM_SHIFT}/MADE IN INDONESIA",
-    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xpouch2",
-    "primer": "PROD {DDMMYYYY}-{NUM_SHIFT}\nMADE IN INDONESIA",
-    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT}\nMADE IN INDONESIA"
-  },
-  {
-    "format": "xpouch3",
-    "primer": "MFD {YYYY}{MM}{DD}-{NUM_SHIFT}",
-    "sekunder": "MFD {YYYY}{MM}{DD}-{NUM_SHIFT}"
-  },
-  {
-    "format": "xpouch4",
-    "primer": "PD {DDMMMYYYY} {TXT_SHIFT}2\nED {EXP25_DDMMMYYYY}",
-    "sekunder": "PROD {DDMMMYYYY} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xpouch5",
-    "primer": "PD {DDMMMYYYY} {TXT_SHIFT}2\nED {EXP2_DDMMMYYYY}",
-    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP2_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "lbotol1",
-    "primer": "MFD {DDMMYY} {MC}{TXT_SHIFT}2",
-    "sekunder": "ED {EXP2_DDMMYY} TIME {LINE}"
-  },
-  {
-    "format": "lbotol2",
-    "primer": "MFD {LOT_DDMMYY} {TXT_LOT} {DD}{MC}{TXT_SHIFT}2",
-    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
-  },
-  {
-    "format": "lbotol3",
-    "primer": "ED {EXP2_DDMMYY} {MC}{TXT_SHIFT}2",
-    "sekunder": "ED {EXP2_DDMMYY} TIME"
-  },
-  {
-    "format": "lbotol5",
-    "primer": "ED {EXP2_LOT_DDMMYY} {TXT_LOT} {DD}{MC}{TXT_SHIFT}2",
-    "sekunder": "ED {EXP2_LOT_DDMMYY} {TXT_LOT}{DD} TIME"
-  },
-  {
-    "format": "xbotol1",
-    "primer": "PROD {DDMMMYYYY}-{NUM_SHIFT}\nEXP {EXP25_DDMMMYYYY}\nBATCH {NUM_SHIFT}/MADE IN INDONESIA",
-    "sekunder": "PROD {DDMMMYYYY}-{NUM_SHIFT} EXP {EXP25_DDMMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xbotol2",
-    "primer": "PROD {DDMMYYYY}-{NUM_SHIFT}\nEXP {EXP2_DDMMYYYY}\nBATCH {NUM_SHIFT}/MADE IN INDONESIA",
-    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT} EXP {EXP2_DDMMYYYY}\nTIME/BATCH {NUM_SHIFT}/MADE IN INDONESIA"
-  },
-  {
-    "format": "xbotol3",
-    "primer": "PROD {DDMMYYYY}-{NUM_SHIFT}\nMADE IN INDONESIA",
-    "sekunder": "PROD {DDMMYYYY}-{NUM_SHIFT}\nMADE IN INDONESIA"
-  },
-  {
-    "format": "xbotol4",
-    "primer": "PD : {MMM} {YYYY}\nED : {EXP2_MMM} {EXP2_YYYY}\nMFD : {DDMMYY} TIME",
-    "sekunder": "PD : {MMM} {YYYY} ED : {EXP2_MMM} {EXP2_YYYY}\nMFD : {DDMMYY} TIME"
-  }
-]
+  "items": [
+    {
+      "id": "lsct01",
+      "kategori": "lokal",
+      "jenis": "sachet",
+      "nama": "Sachet Lokal",
+      "produk": [
+        "Sachet Lokal 8L",
+        "Sachet Lokal 16L",
+        "Sachet Lokal 6L",
+        "Sachet Lokal 12L"
+      ],
+      "primer": "MFD DDMMYY M2",
+      "sekunder_inkjet": "ED ddmmyy TIME L",
+      "sekunder_manual": "ddmmyy S"
+    },
+    {
+      "id": "lpch01",
+      "kategori": "lokal",
+      "jenis": "pouch",
+      "nama": "Pouch Lokal",
+      "produk": [
+        "POUCH Lokal Line A, B, dan C"
+      ],
+      "primer": "MFD DDMMYY MS2[TIME]",
+      "sekunder_inkjet": "ED ddmmyy TIME [L]",
+      "sekunder_manual": "ddmmyy S"
+    },
+    {
+      "id": "lbtl01",
+      "kategori": "lokal",
+      "jenis": "botol",
+      "nama": "Botol Lokal",
+      "produk": [
+        "Botol Lokal All Line"
+      ],
+      "primer": "MFD DDMMYY MS2",
+      "sekunder_inkjet": "ED ddmmyy TIME [L]",
+      "sekunder_manual": "ddmmyy S"
+    },
+    {
+      "id": "xsct01",
+      "kategori": "ekspor",
+      "jenis": "sachet",
+      "nama": "WLD Sachet",
+      "mid": [
+        "17007193",
+        "17007192",
+        "17008499",
+        "17008500",
+        "17009404",
+        "17009405",
+        "17009531",
+        "17009530"
+      ],
+      "primer": "(No Mesin)EXPddmmmyy",
+      "sekunder_inkjet": "PROD DDMMMYYYY-Shift EXP ddmmmyyyy\nTIME/BATCH/MADE IN INDONESIA",
+      "sekunder_manual": null,
+      "expired": "2,5 tahun"
+    },
+    {
+      "id": "xsct02",
+      "kategori": "ekspor",
+      "jenis": "sachet",
+      "nama": "SSL Sachet (Non Twinpack)",
+      "mid": [
+        "17009485",
+        "17009487",
+        "17009611",
+        "17009612"
+      ],
+      "primer": "PD DDMMMYYYY SHIFT2\nED ddmmmyyyy",
+      "sekunder_inkjet": "PROD DDMMMYYYY EXP ddmmmyyyy\nTIME/BATCH/MADE IN INDONESIA",
+      "sekunder_manual": null,
+      "expired": "2,5 tahun"
+    },
+    {
+      "id": "xpch01",
+      "kategori": "ekspor",
+      "jenis": "pouch",
+      "nama": "WLD Pouch",
+      "mid": [
+        "17007195",
+        "17007194",
+        "17009402",
+        "17009403"
+      ],
+      "primer": "PROD DDMMMYYYY-Shift\nEXP ddmmmyyyy\nBATCH/MADE IN INDONESIA",
+      "sekunder_inkjet": "PROD DDMMMYYYY-Shift EXP ddmmmyyyy\nTIME/BATCH/MADE IN INDONESIA",
+      "sekunder_manual": null,
+      "expired": "2,5 tahun"
+    },
+    {
+      "id": "xpch02",
+      "kategori": "ekspor",
+      "jenis": "pouch",
+      "nama": "SSL Pouch (Non Twinpack)",
+      "mid": [
+        "17009488",
+        "17009486",
+        "17008929",
+        "17008930"
+      ],
+      "primer": "PD DDMMMYYYY SHIFT2\nED ddmmmyyyy",
+      "sekunder_inkjet": "PROD DDMMMYYYY EXP ddmmmyyyy\nTIME/BATCH/MADE IN INDONESIA",
+      "sekunder_manual": null,
+      "expired": "2,5 tahun"
+    },
+    {
+      "id": "xpch03",
+      "kategori": "ekspor",
+      "jenis": "pouch",
+      "nama": "SSL Twinpack (ASEAN)",
+      "mid": [
+        "17005205",
+        "17005203"
+      ],
+      "primer": "(Shift)EXPddmmmyy (Pinggir)\nMFD DDMMMYY (Tengah)",
+      "sekunder_inkjet": "PROD DDMMMYYYY-Shift EXP ddmmmyyyy\nTIME/BATCH/MADE IN INDONESIA",
+      "sekunder_manual": null,
+      "expired": "2,5 tahun"
+    },
+    {
+      "id": "xpch04",
+      "kategori": "ekspor",
+      "jenis": "pouch",
+      "nama": "SSL Twinpack (Mozambique)",
+      "mid": [
+        "17005630",
+        "17005631"
+      ],
+      "primer": "Prod DD MM YY Exp dd mm yy",
+      "sekunder_inkjet": "Prod dd mm yy Exp dd mm yy",
+      "sekunder_manual": null,
+      "expired": "2,5 tahun"
+    },
+    {
+      "id": "xbtl01",
+      "kategori": "ekspor",
+      "jenis": "botol",
+      "nama": "WLD Botol",
+      "mid": [
+        "17009365",
+        "17009462"
+      ],
+      "primer": "PROD DDMMMYYYY-Shift\nEXP ddmmmyyyy\nBATCH/MADE IN INDONESIA",
+      "sekunder_inkjet": "PROD DDMMMYYYY-Shift EXP ddmmmyyyy\nTIME/BATCH/MADE IN INDONESIA",
+      "sekunder_manual": null,
+      "expired": "2,5 tahun"
+    },
+    {
+      "id": "xbtl02",
+      "kategori": "ekspor",
+      "jenis": "botol",
+      "nama": "SSL Botol (Non Twinpack)",
+      "mid": [
+        "17009412",
+        "17009413",
+        "17005204",
+        "17005629",
+        "17005202",
+        "17005628"
+      ],
+      "primer": "PD DDMMMYYYY SHIFT2\nED ddmmmyyyy",
+      "sekunder_inkjet": "PROD DDMMMYYYY EXP ddmmmyyyy\nTIME/BATCH/MADE IN INDONESIA",
+      "sekunder_manual": null,
+      "expired": "2,5 tahun"
+    },
+    {
+      "id": "xlai01",
+      "kategori": "ekspor",
+      "jenis": "lainnya",
+      "nama": "SKL Ekspor",
+      "mid": [
+        "17005670",
+        "17005671",
+        "17003914",
+        "17004350",
+        "17003882",
+        "17005005",
+        "17004349",
+        "17005006"
+      ],
+      "primer": "PROD DDMMMYYYY-Shift\nEXP ddmmyyyy\nBATCH/MADE IN INDONESIA",
+      "sekunder_inkjet": "PROD DDMMMYYYY-Shift EXP ddmmyyyy\nTIME/BATCH/MADE IN INDONESIA",
+      "sekunder_manual": null,
+      "expired": "2 tahun"
+    },
+    {
+      "id": "lwet01",
+      "kategori": "lokal",
+      "jenis": "wetwipes",
+      "nama": "Wet Wipes",
+      "produk": [
+        "Wet Wipes"
+      ],
+      "primer": "ED ddmmyy MS2",
+      "sekunder_inkjet": "ED ddmmyy TIME",
+      "sekunder_manual": "ddmmyy S"
+    }
+  ]
+}

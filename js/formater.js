@@ -1,421 +1,343 @@
 /**
- * formater.js - Konversi format otomatis dari format.json ke hasil cetak emboss/inkjet (realtime)
+ * Formater.js - Engine Pemformat Kode Produksi & Expired Date
+ * Liquid 3 (Lokal & Ekspor)
+ * Mengacu pada struktur standar format.json (metadata, kamus_kode, items).
  */
+(function (global) {
+  'use strict';
 
-const MONTHS_MMM = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const MONTH_NAMES_EN = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
-function pad2(num) {
-  return String(num).padStart(2, '0');
-}
-
-/**
- * Mendapatkan shift otomatis berdasarkan waktu dan hari
- * Senin-Jum'at:
- *   SHIFT 1 : 06:00 - 14:00
- *   SHIFT 2 : 14:00 - 22:00
- *   SHIFT 3 : 22:00 - 06:00
- * Sabtu:
- *   SHIFT 1 : 06:00 - 11:00
- *   SHIFT 2 : 11:00 - 16:00
- *   SHIFT 3 : 16:00 - 21:00
- */
-function getShiftFromTime(dateObj, timeStr) {
-  const d = dateObj || new Date();
-  const dayOfWeek = d.getDay(); // 0 = Minggu, 6 = Sabtu
-  const isSaturday = dayOfWeek === 6;
-
-  let hours = d.getHours();
-  let minutes = d.getMinutes();
-  if (timeStr && typeof timeStr === 'string' && timeStr.includes(':')) {
-    const parts = timeStr.split(':');
-    const h = parseInt(parts[0], 10);
-    const m = parseInt(parts[1], 10);
-    if (!isNaN(h)) hours = h;
-    if (!isNaN(m)) minutes = m;
+  /**
+   * Helper penambahan bulan akurat untuk perhitungan expired date
+   */
+  function addMonths(date, months) {
+    const d = new Date(date.getTime());
+    const day = d.getDate();
+    d.setMonth(d.getMonth() + months);
+    if (d.getDate() !== day) {
+      d.setDate(0);
+    }
+    return d;
   }
 
-  const timeMinutes = hours * 60 + minutes;
+  /**
+   * Sub-modul Logika Khusus Format Lokal
+   */
+  const Lokal = {
+    getShiftLetter(shift) {
+      const s = parseInt(shift, 10);
+      if (s === 1) return 'D';
+      if (s === 2) return 'E';
+      return '_';
+    },
 
-  if (isSaturday) {
-    if (timeMinutes >= 360 && timeMinutes < 660) return 1; // 06:00 - 11:00
-    if (timeMinutes >= 660 && timeMinutes < 960) return 2; // 11:00 - 16:00
-    return 3; // 16:00 - 21:00 (dan shift malam)
-  } else {
-    if (timeMinutes >= 360 && timeMinutes < 840) return 1; // 06:00 - 14:00
-    if (timeMinutes >= 840 && timeMinutes < 1320) return 2; // 14:00 - 22:00
-    return 3; // 22:00 - 06:00
-  }
-}
-
-/**
- * Menghitung tanggal berdasarkan offset tahun/bulan dan opsi ACT (+1 hari jika jam 00:00 - 05:59)
- */
-function getDateObj(baseDate, yearsOffset = 0, monthsOffset = 0, isAct = false, timeStr = null) {
-  const d = new Date(baseDate.getTime());
-  
-  if (isAct) {
-    let hours = d.getHours();
-    if (timeStr && typeof timeStr === 'string' && timeStr.includes(':')) {
-      const parsedHours = parseInt(timeStr.split(':')[0], 10);
-      if (!isNaN(parsedHours)) {
-        hours = parsedHours;
+    getMachineCode(machine, fallback = '05') {
+      if (!machine) return fallback;
+      const str = String(machine.code || machine.name || machine.id || machine.workstation || '').trim();
+      // Tangkap nomor mesin utama sebelum tanda strip (-) atau spasi, contoh: "AST 03-16L" -> "03", "AST 33-16L" -> "33", "APK 26" -> "26"
+      const match = str.match(/^[A-Za-z\s]*(\d+)/);
+      if (match && match[1]) {
+        return match[1].padStart(2, '0').slice(-2);
       }
+      const digits = str.replace(/\D/g, '');
+      if (digits) {
+        return digits.padStart(2, '0').slice(-2);
+      }
+      return fallback;
+    },
+
+    getLineCode(machine, fallback = '1B') {
+      if (!machine) return fallback;
+      let rawCode = '';
+      if (machine.workstation) rawCode = String(machine.workstation).trim();
+      else if (machine.line_code) rawCode = String(machine.line_code).trim();
+      else {
+        const mName = String(machine.name || machine.id || '').toUpperCase();
+        const mLine = String(machine.line || '').toUpperCase();
+
+        if (mLine.includes('LINE C') || mName.startsWith('APK 2') || mName.startsWith('APK 3')) return '';
+        if (mLine.includes('LINE A')) rawCode = '0A';
+        else if (mLine.includes('LINE B')) rawCode = '0B';
+        else rawCode = fallback;
+      }
+
+      // Format terbalik untuk workstation mesin (contoh: 1A -> A1, 0A -> A0, 2B -> B2, 1C -> C1)
+      const match = rawCode.match(/^(\d+)([A-Za-z]+)$/);
+      if (match) {
+        return `${match[2]}${match[1]}`;
+      }
+      return rawCode;
+    },
+
+    isManualCutoff(timeStr) {
+      if (!timeStr) return false;
+      const parts = timeStr.split(':');
+      const h = parseInt(parts[0], 10);
+      return h >= 0 && h < 6;
     }
-    // Jam 00:00 - 05:59 (JAM 00 +1)
-    if (hours >= 0 && hours < 6) {
-      d.setDate(d.getDate() + 1);
-    }
-  }
-
-  if (yearsOffset !== 0) {
-    d.setFullYear(d.getFullYear() + yearsOffset);
-  }
-
-  if (monthsOffset !== 0) {
-    d.setMonth(d.getMonth() + monthsOffset);
-  }
-
-  const dd = pad2(d.getDate());
-  const mm = pad2(d.getMonth() + 1);
-  const mmm = MONTHS_MMM[d.getMonth()];
-  const yyyy = String(d.getFullYear());
-  const yy = yyyy.slice(-2);
-
-  return {
-    DD: dd,
-    MM: mm,
-    MMM: mmm,
-    YY: yy,
-    YYYY: yyyy,
-    DDMMYY: `${dd}${mm}${yy}`,
-    DDMMMYY: `${dd}${mmm}${yy}`,
-    DDMMYYYY: `${dd}${mm}${yyyy}`,
-    DDMMMYYYY: `${dd}${mmm}${yyyy}`
-  };
-}
-
-/**
- * Mendapatkan kode mesin ({MC}) dari objek mesin
- * - jika K1 atau X1 maka tampilkan seluruh nama mesinya contoh K1, X1
- * - jika AST maka tampilkan nomor mesinya saja contoh : AST 33-16L maka 33
- * - jika APK maka tampilkan nomor mesinya saja contoh : APK 31 maka 31
- */
-function getMcCode(machine) {
-  if (!machine) return 'MC';
-  const name = (typeof machine === 'string' ? machine : (machine.name || machine.id || '')).trim();
-  if (!name) return 'MC';
-
-  const astMatch = name.match(/AST\s*(\d+)/i);
-  if (astMatch) return astMatch[1];
-
-  const apkMatch = name.match(/APK\s*(\d+)/i);
-  if (apkMatch) return apkMatch[1];
-
-  const shortCodeMatch = name.match(/^([A-Za-z]\d+)$/i);
-  if (shortCodeMatch) return shortCodeMatch[1].toUpperCase();
-
-  const numMatch = name.match(/\b\d+\b/);
-  if (numMatch && !name.includes(' ')) return name;
-
-  return name;
-}
-
-/**
- * Mendapatkan kode line ({LINE}) dari objek mesin
- * diambil dari workstation / line mesin yang dipilih (misal: 0A, 1A, 1C). Dibalik tampilannya (0A -> A0, 1C -> C1)
- */
-function getLineCode(machine) {
-  if (!machine) return 'LINE';
-  const ws = (machine.workstation || '').trim();
-  if (ws) {
-    const match = ws.match(/^(\d+)([A-Za-z]+)$/);
-    if (match) {
-      return `${match[2]}${match[1]}`;
-    }
-    if (ws.length === 2) {
-      return ws[1] + ws[0];
-    }
-    return ws;
-  }
-  if (machine.line) {
-    return machine.line.replace('LINE ', '').trim();
-  }
-  return 'A0';
-}
-
-/**
- * Fungsi Utama Konversi Template Format Kode
- */
-function formatCode(template, options = {}) {
-  if (!template) return '';
-
-  const now = options.date || new Date();
-  const timeStr = options.customTime || `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
-  
-  let shiftNum = options.shift;
-  if (!shiftNum) {
-    shiftNum = getShiftFromTime(now, timeStr);
-  }
-  shiftNum = parseInt(shiftNum, 10) || 1;
-
-  // Cek apakah waktu saat ini berada di jam 00:00 - 05:59 (JAM 00 +1)
-  let isActTime = false;
-  let parsedHours = now.getHours();
-  if (timeStr && typeof timeStr === 'string' && timeStr.includes(':')) {
-    const ph = parseInt(timeStr.split(':')[0], 10);
-    if (!isNaN(ph)) parsedHours = ph;
-  }
-  if (parsedHours >= 0 && parsedHours < 6) {
-    isActTime = true;
-  }
-
-  // Cek apakah format ini adalah msachet1 (sekunder manual)
-  const formatKey = String(options.formatKey || options.format || '').trim().toLowerCase();
-  const isMsachetTemplate = formatKey.startsWith('msachet') || template.trim() === '{EXP2_DDMMYY} {NUM_SHIFT}';
-  const isSekunder = options.isSekunder !== undefined 
-    ? Boolean(options.isSekunder) 
-    : (template.includes('{LINE}') || template.includes('TIME') || template.includes('{TIME}'));
-
-  // Logika Khusus Format Sekunder msachet1:
-  // Menggunakan cut-off jam 06:00 (pergantian tanggal baru terjadi saat Shift 1 jam 06:00).
-  // Jika masih Shift 3 (jam 00:00 - 05:59), tanggal produksi dianggap tanggal hari kemarin (-1 hari).
-  let baseDate = now;
-  if (isMsachetTemplate && isSekunder && isActTime) {
-    const adjustedDate = new Date(now.getTime());
-    adjustedDate.setDate(adjustedDate.getDate() - 1);
-    baseDate = adjustedDate;
-  }
-
-  const disableDateShift = isMsachetTemplate || options.noDateShift === true;
-
-  // Jika opsi isSekunder aktif (atau template mengandung TIME) dan waktu aktual jam 00:00-05:59,
-  // tanggal di sekunder otomatis mengikuti tanggal aktual (+1 hari), KECUALI jika dinonaktifkan (seperti msachet1)
-  const useActForSecondary = !disableDateShift && (options.isSekunder !== undefined ? options.isSekunder : (template.includes('TIME') || template.includes('{TIME}')));
-
-  // SHIFT 1 : D, SHIFT 2 : E, SHIFT 3 : _
-  const shiftTxtMap = { 1: 'D', 2: 'E', 3: '_' };
-  const shiftTxt = shiftTxtMap[shiftNum] !== undefined ? shiftTxtMap[shiftNum] : 'D';
-
-  const machine = options.machine || null;
-  const numLot = options.numLot !== undefined && options.numLot !== '' ? String(options.numLot) : '1';
-
-  // Logika Huruf Lot: 1=A, 2=B, 3=C, dst. Jika options.txtLot disediakan pakai itu, jika tidak hitung dari numLot
-  let txtLot = 'A';
-  if (options.txtLot !== undefined && options.txtLot !== '') {
-    txtLot = String(options.txtLot).toUpperCase();
-  } else {
-    const n = parseInt(numLot, 10);
-    if (!isNaN(n) && n >= 1) {
-      // 1 -> A (65), 2 -> B (66), ...
-      txtLot = String.fromCharCode(65 + ((n - 1) % 26));
-    }
-  }
-
-  // 1. Tanggal Tetap & 2. Tanggal ACT (JAM 00 +1)
-  const dFixed = getDateObj(baseDate, 0, 0, false, timeStr);
-  const dAct = getDateObj(baseDate, 0, 0, true, timeStr);
-
-  // 3. & 4. EXP 2 TAHUN
-  const dExp2Fixed = getDateObj(baseDate, 2, 0, false, timeStr);
-  const dExp2Act = getDateObj(baseDate, 2, 0, true, timeStr);
-
-  // 5. & 6. EXP 1 TAHUN
-  const dExp1Fixed = getDateObj(baseDate, 1, 0, false, timeStr);
-  const dExp1Act = getDateObj(baseDate, 1, 0, true, timeStr);
-
-  // 7. & 8. EXP 2.5 TAHUN (2 tahun 6 bulan = 30 bulan)
-  const dExp25Fixed = getDateObj(baseDate, 2, 6, false, timeStr);
-  const dExp25Act = getDateObj(baseDate, 2, 6, true, timeStr);
-
-  // 10. & 11. LOT TANGGAL TETAP (Sesuai kesepakatan: tanggal produksi yang sama)
-  const dLotFixed = dFixed;
-  const dExp2LotFixed = dExp2Fixed;
-
-  // Tanggal yang digunakan untuk token standar:
-  // - Pada msachet1 sekunder: baseDate sudah disesuaikan mundur 1 hari jika jam 00:00 - 05:59 (cut-off 06:00).
-  // - Pada format lain (lsachet, xsachet, lpouch, botol, dll.): langsung mengikuti tanggal kalender aktual saat itu (contoh: tgl 17 tetap 17).
-  const effectiveDFixed = dFixed;
-  const effectiveDExp2Fixed = dExp2Fixed;
-  const effectiveDExp1Fixed = dExp1Fixed;
-  const effectiveDExp25Fixed = dExp25Fixed;
-  const effectiveDLotFixed = dLotFixed;
-  const effectiveDExp2LotFixed = dExp2LotFixed;
-
-  const mcCode = getMcCode(machine);
-  const lineCode = getLineCode(machine);
-
-  // Pengecekan mesin LINE C:
-  // Untuk mesin dengan field line: LINE C, tidak perlu ditampilkan LINE-nya di format sekunder
-  let isLineC = false;
-  if (machine && typeof machine === 'object') {
-    if (machine.line && String(machine.line).trim().toUpperCase() === 'LINE C') {
-      isLineC = true;
-    } else if (machine.workstation && /^[0-9]+C$/i.test(String(machine.workstation).trim())) {
-      isLineC = true;
-    }
-  } else if (options.line && String(options.line).trim().toUpperCase() === 'LINE C') {
-    isLineC = true;
-  }
-
-  const hideLineInSekunder = isLineC && isSekunder;
-
-  const replacements = {
-    // 1. TANGGAL TETAP (otomatis +1 pada sekunder jika jam 00:00 - 05:59)
-    '{DD}': effectiveDFixed.DD,
-    '{MM}': effectiveDFixed.MM,
-    '{MMM}': effectiveDFixed.MMM,
-    '{YY}': effectiveDFixed.YY,
-    '{YYYY}': effectiveDFixed.YYYY,
-    '{DDMMYY}': effectiveDFixed.DDMMYY,
-    '{DDMMMYY}': effectiveDFixed.DDMMMYY,
-    '{DDMMYYYY}': effectiveDFixed.DDMMYYYY,
-    '{DDMMMYYYY}': effectiveDFixed.DDMMMYYYY,
-
-    // 2. TANGGAL MENGIKUTI JAM (JAM 00 +1)
-    '{ACT_DD}': dAct.DD,
-    '{ACT_MM}': dAct.MM,
-    '{ACT_MMM}': dAct.MMM,
-    '{ACT_YY}': dAct.YY,
-    '{ACT_YYYY}': dAct.YYYY,
-    '{ACT_DDMMYY}': dAct.DDMMYY,
-    '{ACT_DDMMMYY}': dAct.DDMMMYY,
-    '{ACT_DDMMYYYY}': dAct.DDMMYYYY,
-    '{ACT_DDMMMYYYY}': dAct.DDMMMYYYY,
-
-    // 3. EXP 2 TAHUN - TANGGAL TETAP (otomatis +1 pada sekunder jika jam 00:00 - 05:59)
-    '{EXP2_DD}': effectiveDExp2Fixed.DD,
-    '{EXP2_MM}': effectiveDExp2Fixed.MM,
-    '{EXP2_MMM}': effectiveDExp2Fixed.MMM,
-    '{EXP2_YY}': effectiveDExp2Fixed.YY,
-    '{EXP2_YYYY}': effectiveDExp2Fixed.YYYY,
-    '{EXP2_DDMMYY}': effectiveDExp2Fixed.DDMMYY,
-    '{EXP2_DDMMMYY}': effectiveDExp2Fixed.DDMMMYY,
-    '{EXP2_DDMMYYYY}': effectiveDExp2Fixed.DDMMYYYY,
-    '{EXP2_DDMMMYYYY}': effectiveDExp2Fixed.DDMMMYYYY,
-
-    // 4. EXP 2 TAHUN - TANGGAL MENGIKUTI JAM (JAM 00 +1)
-    '{EXP2_ACT_DD}': dExp2Act.DD,
-    '{EXP2_ACT_MM}': dExp2Act.MM,
-    '{EXP2_ACT_MMM}': dExp2Act.MMM,
-    '{EXP2_ACT_YY}': dExp2Act.YY,
-    '{EXP2_ACT_YYYY}': dExp2Act.YYYY,
-    '{EXP2_ACT_DDMMYY}': dExp2Act.DDMMYY,
-    '{EXP2_ACT_DDMMMYY}': dExp2Act.DDMMMYY,
-    '{EXP2_ACT_DDMMYYYY}': dExp2Act.DDMMYYYY,
-    '{EXP2_ACT_DDMMMYYYY}': dExp2Act.DDMMMYYYY,
-
-    // 5. EXP 1 TAHUN - TANGGAL TETAP (otomatis +1 pada sekunder jika jam 00:00 - 05:59)
-    '{EXP1_DD}': effectiveDExp1Fixed.DD,
-    '{EXP1_MM}': effectiveDExp1Fixed.MM,
-    '{EXP1_MMM}': effectiveDExp1Fixed.MMM,
-    '{EXP1_YY}': effectiveDExp1Fixed.YY,
-    '{EXP1_YYYY}': effectiveDExp1Fixed.YYYY,
-    '{EXP1_DDMMYY}': effectiveDExp1Fixed.DDMMYY,
-    '{EXP1_DDMMMYY}': effectiveDExp1Fixed.DDMMMYY,
-    '{EXP1_DDMMYYYY}': effectiveDExp1Fixed.DDMMYYYY,
-    '{EXP1_DDMMMYYYY}': effectiveDExp1Fixed.DDMMMYYYY,
-
-    // 6. EXP 1 TAHUN - TANGGAL MENGIKUTI JAM (JAM 00 +1)
-    '{EXP1_ACT_DD}': dExp1Act.DD,
-    '{EXP1_ACT_MM}': dExp1Act.MM,
-    '{EXP1_ACT_MMM}': dExp1Act.MMM,
-    '{EXP1_ACT_YY}': dExp1Act.YY,
-    '{EXP1_ACT_YYYY}': dExp1Act.YYYY,
-    '{EXP1_ACT_DDMMYY}': dExp1Act.DDMMYY,
-    '{EXP1_ACT_DDMMMYY}': dExp1Act.DDMMMYY,
-    '{EXP1_ACT_DDMMYYYY}': dExp1Act.DDMMYYYY,
-    '{EXP1_ACT_DDMMMYYYY}': dExp1Act.DDMMMYY,
-
-    // 7. EXP 2.5 TAHUN - TANGGAL TETAP (otomatis +1 pada sekunder jika jam 00:00 - 05:59)
-    '{EXP25_DD}': effectiveDExp25Fixed.DD,
-    '{EXP25_MM}': effectiveDExp25Fixed.MM,
-    '{EXP25_MMM}': effectiveDExp25Fixed.MMM,
-    '{EXP25_YY}': effectiveDExp25Fixed.YY,
-    '{EXP25_YYYY}': effectiveDExp25Fixed.YYYY,
-    '{EXP25_DDMMYY}': effectiveDExp25Fixed.DDMMYY,
-    '{EXP25_DDMMMYY}': effectiveDExp25Fixed.DDMMMYY,
-    '{EXP25_DDMMYYYY}': effectiveDExp25Fixed.DDMMYYYY,
-    '{EXP25_DDMMMYYYY}': effectiveDExp25Fixed.DDMMMYYYY,
-
-    // 8. EXP 2.5 TAHUN - TANGGAL MENGIKUTI JAM (JAM 00 +1)
-    '{EXP25_ACT_DD}': dExp25Act.DD,
-    '{EXP25_ACT_MM}': dExp25Act.MM,
-    '{EXP25_ACT_MMM}': dExp25Act.MMM,
-    '{EXP25_ACT_YY}': dExp25Act.YY,
-    '{EXP25_ACT_YYYY}': dExp25Act.YYYY,
-    '{EXP25_ACT_DDMMYY}': dExp25Act.DDMMYY,
-    '{EXP25_ACT_DDMMMYY}': dExp25Act.DDMMMYY,
-    '{EXP25_ACT_DDMMYYYY}': dExp25Act.DDMMYYYY,
-    '{EXP25_ACT_DDMMMYYYY}': dExp25Act.DDMMMYYYY,
-
-    // 9. SHIFT, MESIN, LINE, TIME
-    '{NUM_SHIFT}': String(shiftNum),
-    '{TXT_SHIFT}': shiftTxt,
-    '{MC}': mcCode,
-    '{LINE}': hideLineInSekunder ? '' : lineCode,
-    '{TIMEPOUCH}': timeStr,
-    '{TIME}': timeStr,
-
-    // 10. LOT VARIABLES (otomatis +1 pada sekunder jika jam 00:00 - 05:59)
-    '{LOT_DD}': effectiveDLotFixed.DD,
-    '{LOT_MM}': effectiveDLotFixed.MM,
-    '{LOT_MMM}': effectiveDLotFixed.MMM,
-    '{LOT_YY}': effectiveDLotFixed.YY,
-    '{LOT_YYYY}': effectiveDLotFixed.YYYY,
-    '{LOT_DDMMYY}': effectiveDLotFixed.DDMMYY,
-    '{LOT_DDMMMYY}': effectiveDLotFixed.DDMMMYY,
-    '{LOT_DDMMYYYY}': effectiveDLotFixed.DDMMYYYY,
-    '{LOT_DDMMMYYYY}': effectiveDLotFixed.DDMMMYYYY,
-
-    // 11. EXP 2 TAHUN LOT (otomatis +1 pada sekunder jika jam 00:00 - 05:59)
-    '{EXP2_LOT_DD}': effectiveDExp2LotFixed.DD,
-    '{EXP2_LOT_MM}': effectiveDExp2LotFixed.MM,
-    '{EXP2_LOT_MMM}': effectiveDExp2LotFixed.MMM,
-    '{EXP2_LOT_YY}': effectiveDExp2LotFixed.YY,
-    '{EXP2_LOT_YYYY}': effectiveDExp2LotFixed.YYYY,
-    '{EXP2_LOT_DDMMYY}': effectiveDExp2LotFixed.DDMMYY,
-    '{EXP2_LOT_DDMMMYY}': effectiveDExp2LotFixed.DDMMMYY,
-    '{EXP2_LOT_DDMMYYYY}': effectiveDExp2LotFixed.DDMMYYYY,
-    '{EXP2_LOT_DDMMMYYYY}': effectiveDExp2LotFixed.DDMMMYYYY,
-
-    // 12. LOT NUM & TXT
-    '{NUM_LOT}': numLot,
-    '{TXT_LOT}': txtLot,
-    '(TXT_LOT}': txtLot
   };
 
-  let result = template;
-  if (hideLineInSekunder) {
-    // Hapus token {LINE} beserta spasi sebelumnya agar format sekunder rapi
-    // Contoh: 'ED {EXP2_DDMMYY} TIME {LINE}' -> 'ED {EXP2_DDMMYY} TIME'
-    result = result.replace(/[ \t]*\{LINE\}/g, '');
-  }
+  /**
+   * Sub-modul Logika Khusus Format Ekspor
+   */
+  const Ekspor = {
+    getNumericShift(shift) {
+      const s = parseInt(shift, 10);
+      return (s === 1 || s === 2 || s === 3) ? String(s) : '1';
+    },
 
-  const keys = Object.keys(replacements).sort((a, b) => b.length - a.length);
-
-  for (const key of keys) {
-    if (result.includes(key)) {
-      result = result.split(key).join(replacements[key]);
+    getMonthName(monthIndex) {
+      return MONTH_NAMES_EN[monthIndex] || 'JAN';
     }
+  };
+
+  /**
+   * Engine Inti Formater
+   */
+  const Formater = {
+    Lokal,
+    Ekspor,
+
+    /**
+     * Hitung shift otomatis dari waktu dan hari
+     */
+    getShiftFromTime(dateObj = new Date(), timeStr = null) {
+      const d = dateObj instanceof Date ? dateObj : new Date();
+      let hours = d.getHours();
+      let minutes = d.getMinutes();
+
+      if (timeStr && typeof timeStr === 'string' && timeStr.includes(':')) {
+        const parts = timeStr.split(':');
+        hours = parseInt(parts[0], 10) || 0;
+        minutes = parseInt(parts[1], 10) || 0;
+      }
+
+      const curMinutes = hours * 60 + minutes;
+      const dayOfWeek = d.getDay(); // 0: Minggu, 5: Jumat
+
+      if (dayOfWeek === 5) {
+        if (curMinutes >= 6 * 60 && curMinutes < 14 * 60 + 30) return 1;
+        if (curMinutes >= 14 * 60 + 30 && curMinutes < 22 * 60) return 2;
+        return 3;
+      }
+
+      if (curMinutes >= 6 * 60 && curMinutes < 14 * 60) return 1;
+      if (curMinutes >= 14 * 60 && curMinutes < 22 * 60) return 2;
+      return 3;
+    },
+
+    /**
+     * Cari definisi item format berdasarkan ID, MID, atau format alias
+     */
+    findFormatItem(formatsData, identifier) {
+      if (!formatsData || !identifier) return null;
+      const key = String(identifier).trim().toLowerCase();
+
+      // Jika formatData dalam format array items
+      const list = Array.isArray(formatsData)
+        ? formatsData
+        : (Array.isArray(formatsData.items)
+          ? formatsData.items
+          : Object.values(formatsData));
+
+      // 1. Cari exact match id / format
+      let match = list.find(item => item && (
+        String(item.id || '').toLowerCase() === key ||
+        String(item.format || '').toLowerCase() === key
+      ));
+      if (match) return match;
+
+      // 2. Cari berdasarkan MID
+      match = list.find(item => item && Array.isArray(item.mid) && item.mid.includes(identifier));
+      if (match) return match;
+
+      return null;
+    },
+
+    /**
+     * Format template kode printing
+     */
+    formatCode(template, options = {}) {
+      if (!template || typeof template !== 'string') return '-';
+
+      const date = options.date instanceof Date ? options.date : new Date();
+      const shift = parseInt(options.shift, 10) || 1;
+      const machine = options.machine || null;
+      const isSekunder = !!options.isSekunder;
+      const isManual = !!options.isManual;
+      const formatKey = String(options.formatKey || '').toLowerCase();
+
+      // Format Waktu Realtime / Input
+      let timeStr = options.customTime || '';
+      if (!timeStr) {
+        const hh = String(date.getHours()).padStart(2, '0');
+        const mm = String(date.getMinutes()).padStart(2, '0');
+        timeStr = `${hh}:${mm}`;
+      }
+
+      // Cut-off 06:00 untuk manual sekunder
+      let effectiveDate = date;
+      if (isSekunder && isManual) {
+        if (Lokal.isManualCutoff(timeStr)) {
+          effectiveDate = new Date(date.getTime() - 24 * 60 * 60 * 1000);
+        }
+      }
+
+      // Komponen Tanggal Produksi
+      const DD = String(effectiveDate.getDate()).padStart(2, '0');
+      const MM = String(effectiveDate.getMonth() + 1).padStart(2, '0');
+      const YY = String(effectiveDate.getFullYear()).slice(-2);
+      const YYYY = String(effectiveDate.getFullYear());
+      const MMM = Ekspor.getMonthName(effectiveDate.getMonth());
+
+      // Expired 2 Tahun (24 Bulan)
+      const exp2Date = addMonths(effectiveDate, 24);
+      const EXP2_DD = String(exp2Date.getDate()).padStart(2, '0');
+      const EXP2_MM = String(exp2Date.getMonth() + 1).padStart(2, '0');
+      const EXP2_YY = String(exp2Date.getFullYear()).slice(-2);
+      const EXP2_YYYY = String(exp2Date.getFullYear());
+      const EXP2_MMM = Ekspor.getMonthName(exp2Date.getMonth());
+
+      // Expired 2.5 Tahun (30 Bulan)
+      const exp25Date = addMonths(effectiveDate, 30);
+      const EXP25_DD = String(exp25Date.getDate()).padStart(2, '0');
+      const EXP25_MM = String(exp25Date.getMonth() + 1).padStart(2, '0');
+      const EXP25_YY = String(exp25Date.getFullYear()).slice(-2);
+      const EXP25_YYYY = String(exp25Date.getFullYear());
+      const EXP25_MMM = Ekspor.getMonthName(exp25Date.getMonth());
+
+      // Shift
+      const txtShift = Lokal.getShiftLetter(shift);
+      const numShift = Ekspor.getNumericShift(shift);
+
+      // Kode Mesin 2 Digit (contoh: AST 03-16L -> "03", AST 33-16L -> "33", APK 26 -> "26")
+      const mcCode = Lokal.getMachineCode(machine, '05');
+
+      // Deteksi Line Mesin
+      const mLine = machine ? String(machine.line || '').toUpperCase() : '';
+      const mName = machine ? String(machine.name || '').toUpperCase() : '';
+      const isLineC = mLine.includes('LINE C') || mName.startsWith('APK 2') || mName.startsWith('APK 3');
+
+      // Token Line untuk Kardus
+      let lineCode = '';
+      if (!isLineC) {
+        lineCode = Lokal.getLineCode(machine, mLine.includes('LINE B') ? 'B4' : 'B1');
+      }
+
+      // Waktu opsional untuk Pouch
+      const timePouch = isLineC ? (timeStr ? `\n${timeStr}` : '') : '';
+
+      // Tentukan apakah format merupakan ekspor 2.5 tahun atau 2 tahun
+      const isEkspor25 = template.includes('EXP25') ||
+        formatKey.startsWith('x') ||
+        formatKey.includes('wld') ||
+        formatKey.includes('ssl') ||
+        template.includes('PROD DDMMMYYYY') ||
+        template.includes('EXP ddmmmyyyy');
+
+      const expDD = isEkspor25 ? EXP25_DD : EXP2_DD;
+      const expMM = isEkspor25 ? EXP25_MM : EXP2_MM;
+      const expYY = isEkspor25 ? EXP25_YY : EXP2_YY;
+      const expYYYY = isEkspor25 ? EXP25_YYYY : EXP2_YYYY;
+      const expMMM = isEkspor25 ? EXP25_MMM : EXP2_MMM;
+
+      // Kamus Token Lengkap
+      const tokenReplacements = {
+        // Tag terformat eksplisit
+        '{DDMMYY}': `${DD}${MM}${YY}`,
+        '{DDMMYYYY}': `${DD}${MM}${YYYY}`,
+        '{DDMMMYYYY}': `${DD}${MMM}${YYYY}`,
+        '{DDMMMYY}': `${DD}${MMM}${YY}`,
+        '{YYYY}': YYYY,
+        '{YY}': YY,
+        '{MM}': MM,
+        '{DD}': DD,
+        '{MMM}': MMM,
+
+        '{EXP2_DDMMYY}': `${EXP2_DD}${EXP2_MM}${EXP2_YY}`,
+        '{EXP2_DDMMYYYY}': `${EXP2_DD}${EXP2_MM}${EXP2_YYYY}`,
+        '{EXP2_DDMMMYYYY}': `${EXP2_DD}${EXP2_MMM}${EXP2_YYYY}`,
+        '{EXP2_DDMMMYY}': `${EXP2_DD}${EXP2_MMM}${EXP2_YY}`,
+
+        '{EXP25_DDMMYY}': `${EXP25_DD}${EXP25_MM}${EXP25_YY}`,
+        '{EXP25_DDMMYYYY}': `${EXP25_DD}${EXP25_MM}${EXP25_YYYY}`,
+        '{EXP25_DDMMMYYYY}': `${EXP25_DD}${EXP25_MMM}${EXP25_YYYY}`,
+        '{EXP25_DDMMMYY}': `${EXP25_DD}${EXP25_MMM}${EXP25_YY}`,
+
+        '{TXT_SHIFT}': txtShift,
+        '{NUM_SHIFT}': numShift,
+        '{MC}': mcCode,
+        '{LINE}': lineCode,
+        '{TIME}': timeStr,
+        '{TIMEPOUCH}': timePouch,
+
+        // Format teks natural dari kamus_kode (urutkan dari yang paling spesifik / panjang)
+        'DDMMMYYYY': `${DD}${MMM}${YYYY}`,
+        'ddmmmyyyy': `${expDD}${expMMM}${expYYYY}`,
+        'DDMMYYYY': `${DD}${MM}${YYYY}`,
+        'ddmmyyyy': `${expDD}${expMM}${expYYYY}`,
+        'DDMMMYY': `${DD}${MMM}${YY}`,
+        'ddmmmyy': `${expDD}${expMMM}${expYY}`,
+        'DDMMYY': `${DD}${MM}${YY}`,
+        'ddmmyy': `${expDD}${expMM}${expYY}`,
+        '(No Mesin)': mcCode,
+        'No Mesin': mcCode,
+        'M2': `${mcCode}2`,
+        'MS2': `${mcCode}${txtShift}2`,
+        '[TIME]': timePouch,
+        '[L]': lineCode ? ` ${lineCode}` : '',
+        ' L': lineCode ? ` ${lineCode}` : '',
+        'TIME': timeStr,
+        'Time': timeStr,
+        'Shift': numShift,
+        'SHIFT2': `${txtShift}2`,
+        '(Shift)': `0${numShift}`,
+        ' S': isManual ? ` ${numShift}` : ` ${txtShift}`,
+        'BATCH': `BATCH ${numShift}`
+      };
+
+      let result = template;
+
+      // Substitusi token terlebih dahulu
+      for (const [key, val] of Object.entries(tokenReplacements)) {
+        result = result.split(key).join(val);
+      }
+
+      // Khusus Mozambique (Prod DD MM YY Exp dd mm yy)
+      if (template.toLowerCase().includes('prod dd mm yy')) {
+        result = result
+          .replace(/DD/g, DD)
+          .replace(/MM/g, MM)
+          .replace(/YY/g, YY)
+          .replace(/dd/g, expDD)
+          .replace(/mm/g, expMM)
+          .replace(/yy/g, expYY);
+      }
+
+      // Ganti separator multi-baris jika masih ada tanda pipa '|'
+      result = result.replace(/\s*\|\s*/g, '\n');
+
+      // Pembersihan baris dan spasi berlebih
+      result = result
+        .split('\n')
+        .map(line => line.replace(/\s+/g, ' ').trim())
+        .filter(line => line.length > 0)
+        .join('\n');
+
+      return result;
+    }
+  };
+
+  // Ekspor ke lingkungan browser (window/self) maupun Node.js (global)
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Formater;
   }
-
-  // Ganti kata 'TIME' dengan waktu jam aktual jika ada
-  // Contoh: 'ED 080728 TIME A0' -> 'ED 080728 12:00 A0'
-  // atau 'TIME/BATCH 2/MADE IN INDONESIA' -> '14:30/BATCH 2/MADE IN INDONESIA'
-  result = result.replace(/\bTIME\b/g, timeStr);
-
-  // Bersihkan spasi kosong di ujung setiap baris
-  result = result.split('\n').map(line => line.trimEnd()).join('\n').trim();
-
-  return result;
-}
-
-if (typeof window !== 'undefined') {
-  window.Formater = { formatCode, getDateObj, getShiftFromTime, getMcCode, getLineCode };
-}
-if (typeof globalThis !== 'undefined') {
-  globalThis.Formater = { formatCode, getDateObj, getShiftFromTime, getMcCode, getLineCode };
-}
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { formatCode, getDateObj, getShiftFromTime, getMcCode, getLineCode };
-}
+  if (typeof window !== 'undefined') {
+    window.Formater = Formater;
+  } else if (typeof globalThis !== 'undefined') {
+    globalThis.Formater = Formater;
+  } else if (typeof global !== 'undefined') {
+    global.Formater = Formater;
+  }
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));

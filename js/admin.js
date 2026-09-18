@@ -524,15 +524,30 @@
           this.items = rawRecords.map(r => this.normalizeItemStructure(r));
 
           // Tarik daftar pilihan format dari data/format.json
+          const parseFormatList = (json) => {
+            if (Array.isArray(json)) return json;
+            if (json && typeof json === 'object') {
+              if (Array.isArray(json.items)) return json.items;
+              const flat = [
+                ...(Array.isArray(json.format_lokal) ? json.format_lokal : []),
+                ...(Array.isArray(json.format_ekspor) ? json.format_ekspor : [])
+              ];
+              if (flat.length > 0) return flat;
+              if (Array.isArray(json.formats)) return json.formats;
+            }
+            return [];
+          };
+
           try {
             const formatFile = await this.repository.getFileContentUTF8("data/format.json");
             const formatJson = JSON.parse(formatFile.content);
-            const formatList = Array.isArray(formatJson) ? formatJson : (formatJson.formats || []);
-            this.availableFormats = formatList.map(f => typeof f === 'string' ? f : f.format).filter(Boolean);
+            const formatList = parseFormatList(formatJson);
+            this.availableFormats = formatList.map(f => typeof f === 'string' ? f : (f.format || f.id)).filter(Boolean);
             this.formatsData = {};
             formatList.forEach(f => {
-              if (f && typeof f === 'object' && f.format) {
-                this.formatsData[f.format] = f;
+              if (f && typeof f === 'object') {
+                const key = f.format || f.id;
+                if (key) this.formatsData[key] = f;
               }
             });
           } catch (fmtErr) {
@@ -541,12 +556,13 @@
               const localRes = await fetch(`./data/format.json?_t=${Date.now()}`);
               if (localRes.ok) {
                 const localJson = await localRes.json();
-                const formatList = Array.isArray(localJson) ? localJson : (localJson.formats || []);
-                this.availableFormats = formatList.map(f => typeof f === 'string' ? f : f.format).filter(Boolean);
+                const formatList = parseFormatList(localJson);
+                this.availableFormats = formatList.map(f => typeof f === 'string' ? f : (f.format || f.id)).filter(Boolean);
                 this.formatsData = {};
                 formatList.forEach(f => {
-                  if (f && typeof f === 'object' && f.format) {
-                    this.formatsData[f.format] = f;
+                  if (f && typeof f === 'object') {
+                    const key = f.format || f.id;
+                    if (key) this.formatsData[key] = f;
                   }
                 });
               }
@@ -1314,8 +1330,13 @@
       const sekunderEl = document.getElementById(`preview-sekunder-${index}`);
       if (!primerEl || !sekunderEl) return;
 
-      const formatKey = String(item.format || 'lpouch1').trim();
-      let formatDef = adminApp.formatsData ? adminApp.formatsData[formatKey] : null;
+      const formatKey = String(item.format || 'lpch01').trim();
+      let formatDef = null;
+      if (window.Formater && typeof window.Formater.findFormatItem === 'function') {
+        formatDef = window.Formater.findFormatItem(adminApp.formatsData, formatKey) || window.Formater.findFormatItem(adminApp.formatsData, item.mid);
+      } else if (adminApp.formatsData) {
+        formatDef = adminApp.formatsData[formatKey] || null;
+      }
 
       let primerText = '-';
       let sekunderText = '-';
@@ -1329,10 +1350,11 @@
           machine: { name: 'APK 26', line: 'LINE A' },
           customTime: jam,
           numLot: '1',
-          formatKey: formatKey
+          formatKey: formatDef.id || formatKey
         };
+        const sekunderTpl = formatDef.sekunder_inkjet || formatDef.sekunder;
         if (formatDef.primer) primerText = window.Formater.formatCode(formatDef.primer, { ...opt, isSekunder: false });
-        if (formatDef.sekunder) sekunderText = window.Formater.formatCode(formatDef.sekunder, { ...opt, isSekunder: true });
+        if (sekunderTpl) sekunderText = window.Formater.formatCode(sekunderTpl, { ...opt, isSekunder: true });
       } else if (!formatDef) {
         primerText = `[Format ${formatKey} belum terdefinisi di format.json]`;
         sekunderText = '-';

@@ -593,7 +593,20 @@
                 try {
                     const res = await fetch(`./data/format.json?_cb=${Date.now()}`);
                     if (res.ok) {
-                        formatsCache = await res.json();
+                        const raw = await res.json();
+                        if (Array.isArray(raw)) {
+                            formatsCache = raw;
+                        } else if (raw && typeof raw === 'object') {
+                            if (Array.isArray(raw.items)) {
+                                formatsCache = raw.items;
+                            } else {
+                                const flat = [
+                                    ...(Array.isArray(raw.format_lokal) ? raw.format_lokal : []),
+                                    ...(Array.isArray(raw.format_ekspor) ? raw.format_ekspor : [])
+                                ];
+                                formatsCache = flat.length > 0 ? flat : (raw.formats || []);
+                            }
+                        }
                     }
                 } catch (e) {
                     console.warn("Gagal memuat format.json:", e);
@@ -701,29 +714,37 @@
             }
 
             function updateManualSekunderVisibility() {
-                if (!el.selectMesin || !el.wrapperManualSekunder) return;
-                const chosenMachineName = (el.selectMesin.value || '').trim();
-                if (!chosenMachineName) {
+                if (!el.wrapperManualSekunder) return;
+                
+                // Cek apakah MID saat ini termasuk kategori ekspor
+                const primaryItem = (pendingSearchMatches && pendingSearchMatches[0]) || (currentSearchMatches && currentSearchMatches[0]) || {};
+                const formatKey = (primaryItem.format || '').toLowerCase();
+                const midStr = String(primaryItem.mid || pendingSearchMid || currentSearchMid || '');
+
+                let formatDef = null;
+                if (window.Formater && typeof window.Formater.findFormatItem === 'function') {
+                    formatDef = window.Formater.findFormatItem(formatsCache, formatKey) || window.Formater.findFormatItem(formatsCache, midStr);
+                } else if (Array.isArray(formatsCache)) {
+                    formatDef = formatsCache.find(f => (f.id === formatKey || (Array.isArray(f.mid) && f.mid.includes(midStr))));
+                }
+
+                const isEkspor = formatKey.startsWith('x') || (formatDef && (formatDef.kategori === 'ekspor' || formatDef.id?.startsWith('x')));
+
+                if (isEkspor) {
+                    // Produk ekspor tidak memiliki opsi sekunder manual
                     el.wrapperManualSekunder.classList.add('hidden');
                     if (el.checkManualSekunder) el.checkManualSekunder.checked = false;
                     return;
                 }
 
-                const machineObj = machinesCache.find(m => (m.name || m.id) === chosenMachineName);
-                const isManualEligible = !!(machineObj && (
-                    machineObj.allow_manual === true ||
-                    machineObj.can_manual === true ||
-                    machineObj.mode_sekunder === 'MANUAL'
-                ));
+                // Semua produk non-ekspor memiliki opsi sekunder manual
+                el.wrapperManualSekunder.classList.remove('hidden');
 
-                if (isManualEligible) {
-                    el.wrapperManualSekunder.classList.remove('hidden');
-                    if (machineObj.mode_sekunder === 'MANUAL' && el.checkManualSekunder) {
-                        el.checkManualSekunder.checked = true;
-                    }
-                } else {
-                    el.wrapperManualSekunder.classList.add('hidden');
-                    if (el.checkManualSekunder) el.checkManualSekunder.checked = false;
+                // Jika mesin terpilih secara bawaan memang diset mode MANUAL, auto-centang checkbox
+                const chosenMachineName = (el.selectMesin?.value || '').trim();
+                const machineObj = machinesCache.find(m => (m.name || m.id) === chosenMachineName);
+                if (machineObj && machineObj.mode_sekunder === 'MANUAL' && el.checkManualSekunder) {
+                    el.checkManualSekunder.checked = true;
                 }
             }
 
@@ -1002,7 +1023,7 @@
                     const cleanedImgName = item.img ? String(item.img).trim() : '';
                     const imgSrc = (cleanedImgName && cleanedImgName !== '-') ? `${CONFIG.imageFolder}${cleanedImgName}` : fallbackImg;
                     const hasTdk = item.tdk && String(item.tdk).trim() !== '' && String(item.tdk).trim() !== '-';
-                    
+
                     const tdkHtml = hasTdk ? `
                         <div class="bg-gray-50 dark:bg-slate-800/60 p-3 rounded-xl border border-gray-100 dark:border-slate-800 text-left">
                             <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 block">No. TDK</span>
@@ -1012,45 +1033,42 @@
 
                     // Evaluasi format kode printing
                     const formatKey = item.format || (
-                        (item.deskripsi && (item.deskripsi.includes('BTL') || item.deskripsi.includes('BOTTLE') || item.deskripsi.includes('JRC'))) ? 'botol1' :
-                        (item.deskripsi && item.deskripsi.includes('SO SOFT')) ? 'sosoft1' : 'lpouch1'
+                        (item.deskripsi && (item.deskripsi.includes('BTL') || item.deskripsi.includes('BOTTLE') || item.deskripsi.includes('JRC'))) ? 'lbtl01' :
+                        (item.deskripsi && item.deskripsi.includes('SO SOFT')) ? 'lbtl01' : 'lpch01'
                     );
 
                     let formatDef = null;
-                    if (Array.isArray(formatsCache)) {
-                        formatDef = formatsCache.find(f => f.format === formatKey);
+                    if (window.Formater && typeof window.Formater.findFormatItem === 'function') {
+                        formatDef = window.Formater.findFormatItem(formatsCache, formatKey) || window.Formater.findFormatItem(formatsCache, item.mid);
+                    } else if (Array.isArray(formatsCache)) {
+                        formatDef = formatsCache.find(f => (f.id === formatKey || f.format === formatKey || (Array.isArray(f.mid) && f.mid.includes(item.mid))));
                     } else if (formatsCache && typeof formatsCache === 'object') {
                         formatDef = formatsCache[formatKey] || null;
                     }
 
-                    let effectiveFormatDef = formatDef;
-                    if (isManualSekunderActive) {
-                        const msachetDef = Array.isArray(formatsCache)
-                            ? formatsCache.find(f => f.format === 'msachet1')
-                            : (formatsCache && formatsCache['msachet1']);
-                        if (msachetDef) {
-                            effectiveFormatDef = {
-                                ...(formatDef || {}),
-                                primer: (formatDef && formatDef.primer) ? formatDef.primer : msachetDef.primer,
-                                sekunder: msachetDef.sekunder
-                            };
-                        }
-                    }
+                    let effectiveSekunderTemplate = formatDef
+                        ? (isManualSekunderActive ? (formatDef.sekunder_manual || formatDef.sekunder) : (formatDef.sekunder_inkjet || formatDef.sekunder))
+                        : null;
 
                     let primerText = '-';
                     let sekunderText = '-';
 
-                    if (window.Formater && effectiveFormatDef) {
+                    if (window.Formater && formatDef) {
                         const opt = {
                             date: nowRealtime,
                             shift: selectedShift,
                             machine: selectedMachine,
                             customTime: realtimeJam,
-                            numLot: '1', // Lot default 1 -> Huruf Lot 'A' (2=B, 3=C, dst)
-                            formatKey: isManualSekunderActive ? 'msachet1' : formatKey
+                            numLot: '1',
+                            isManual: isManualSekunderActive,
+                            formatKey: formatDef.id || formatKey
                         };
-                        if (effectiveFormatDef.primer) primerText = window.Formater.formatCode(effectiveFormatDef.primer, { ...opt, isSekunder: false });
-                        if (effectiveFormatDef.sekunder) sekunderText = window.Formater.formatCode(effectiveFormatDef.sekunder, { ...opt, isSekunder: true });
+                        if (formatDef.primer) {
+                            primerText = window.Formater.formatCode(formatDef.primer, { ...opt, isSekunder: false });
+                        }
+                        if (effectiveSekunderTemplate) {
+                            sekunderText = window.Formater.formatCode(effectiveSekunderTemplate, { ...opt, isSekunder: true });
+                        }
                     }
 
                     const cleanPrimer = primerText ? String(primerText).split('\n').map(l => l.trim()).join('\n').trim() : '-';
@@ -1109,7 +1127,7 @@
                                     <span class="bg-black/75 dark:bg-white/80 text-white dark:text-gray-900 text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg">🔍 Perbesar Gambar</span>
                                 </div>
                                 <img src="${imgSrc}" alt="${item.deskripsi || 'Gambar'}" 
-                                     class="max-w-full max-h-[220px] object-contain z-10 relative rounded-lg cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+                                     class="max-w-full max-h-[220px] object-contain z-10 relative rounded-lg cursor-pointer"
                                      onerror="this.onerror=null; this.src='${fallbackImg}';">
                             </div>
                             

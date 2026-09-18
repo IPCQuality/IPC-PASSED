@@ -18,12 +18,22 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
             margin: 0;
             padding: 1rem 0.75rem;
@@ -31,6 +41,10 @@
             justify-content: center;
             align-items: flex-start;
             transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        code, pre, .font-mono {
+            font-family: 'JetBrains Mono', monospace !important;
         }
 
         body.light-theme {
@@ -56,11 +70,48 @@
         .btn-gradient:hover { background: linear-gradient(90deg, #1e3a8a 0%, #2563eb 100%); }
         
         .fade-in {
-            animation: fadeIn 0.35s ease-out forwards;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Shimmer Skeleton Animation */
+        .skeleton-shimmer {
+            background: linear-gradient(90deg, rgba(226, 232, 240, 0.6) 25%, rgba(241, 245, 249, 0.9) 50%, rgba(226, 232, 240, 0.6) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .dark .skeleton-shimmer {
+            background: linear-gradient(90deg, rgba(30, 41, 59, 0.6) 25%, rgba(51, 65, 85, 0.8) 50%, rgba(30, 41, 59, 0.6) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Product Card Interactive Hover */
+        .product-card-hover {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+            will-change: transform, box-shadow;
+        }
+        .product-card-hover:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.08), 0 6px 12px -4px rgba(0, 0, 0, 0.04);
+        }
+        .dark .product-card-hover:hover {
+            box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.4), 0 6px 12px -4px rgba(0, 0, 0, 0.25);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        /* Container tampilan hasil cetak */
+        #res-container {
+            display: grid;
+            grid-auto-flow: row;
+            gap: 1rem;
         }
 
         .glass-modal {
@@ -169,9 +220,39 @@
 
             <div id="right-panel" class="lg:col-span-7 w-full lg:border-l lg:border-gray-100 dark:lg:border-slate-800/80 lg:pl-8 flex flex-col justify-start">
 
-                <div id="view-loading" class="hidden flex-col items-center justify-center py-12 fade-in lg:pt-8">
-                    <div class="w-10 h-10 border-4 border-blue-100 dark:border-slate-700 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin mb-3"></div>
-                    <p class="text-blue-600 dark:text-blue-400 font-semibold animate-pulse text-xs">Memuat Data MID...</p>
+                <div id="view-loading" class="hidden flex-col w-full fade-in lg:pt-8 space-y-4">
+                    <!-- Skeleton Header -->
+                    <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-slate-800">
+                        <div class="space-y-1.5 w-1/2">
+                            <div class="h-3 w-28 rounded-lg skeleton-shimmer"></div>
+                            <div class="h-8 w-36 rounded-xl skeleton-shimmer"></div>
+                        </div>
+                        <div class="h-7 w-32 rounded-xl skeleton-shimmer"></div>
+                    </div>
+
+                    <!-- Skeleton Quick Bar -->
+                    <div class="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-gray-50/80 dark:bg-slate-800/40 border border-gray-200/60 dark:border-slate-700/50">
+                        <div class="flex items-center gap-2">
+                            <div class="h-6 w-24 rounded-xl skeleton-shimmer"></div>
+                            <div class="h-6 w-20 rounded-xl skeleton-shimmer"></div>
+                        </div>
+                        <div class="h-6 w-14 rounded-xl skeleton-shimmer"></div>
+                    </div>
+
+                    <!-- Skeleton Product Card -->
+                    <div class="bg-white dark:bg-slate-800/90 border border-gray-100 dark:border-slate-700/60 rounded-2xl overflow-hidden p-4 space-y-4 shadow-sm">
+                        <div class="w-full h-44 rounded-xl skeleton-shimmer"></div>
+                        <div class="space-y-2">
+                            <div class="h-4 w-1/3 rounded-lg skeleton-shimmer"></div>
+                            <div class="h-6 w-3/4 rounded-xl skeleton-shimmer"></div>
+                        </div>
+                        <!-- Skeleton Format Boxes -->
+                        <div class="space-y-3 p-3.5 rounded-xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100/40 dark:border-blue-900/30">
+                            <div class="h-3 w-40 rounded-lg skeleton-shimmer"></div>
+                            <div class="h-10 w-full rounded-lg skeleton-shimmer"></div>
+                            <div class="h-10 w-full rounded-lg skeleton-shimmer"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="view-result" class="hidden flex-col w-full fade-in lg:pt-8">
@@ -216,7 +297,7 @@
                         </button>
                     </div>
 
-                    <div id="res-container" class="space-y-4 w-full"></div>
+                    <div id="res-container" class="w-full"></div>
                 </div>
 
                 <div id="view-error" class="hidden flex-col items-center justify-center py-10 text-center fade-in lg:pt-8">
@@ -336,13 +417,13 @@
                     </select>
                 </div>
 
-                <!-- Opsi Format Sekunder MANUAL (Hanya muncul jika mesin mendukung / diatur manual) -->
+                <!-- Opsi Format Sekunder MANUAL (Tersedia untuk semua produk non-ekspor) -->
                 <div id="wrapper-manual-sekunder" class="hidden p-3 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/70 dark:bg-blue-950/40 transition-all">
                     <label class="flex items-start gap-2.5 cursor-pointer select-none">
                         <input type="checkbox" id="check-manual-sekunder" class="mt-0.5 w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-slate-600 focus:ring-blue-500 cursor-pointer">
                         <div class="text-left">
                             <span class="block text-xs font-bold text-gray-800 dark:text-white leading-tight">Packing Sekunder Manual (MANUAL)</span>
-                            <span class="block text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Format sekunder: {EXP2_DDMMYY} {NUM_SHIFT}</span>
+                            <span class="block text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Format sekunder manual: ddmmyy S</span>
                         </div>
                     </label>
                 </div>
